@@ -38,6 +38,39 @@ class Manager:
 
         return True
 
+    def get_subjects(self):
+        return list(self.subjects.values())
+
+    def get_groups(self, subject_id):
+        if subject_id not in self.subjects:
+            return False
+
+        group_ids = self.subjects[subject_id].group_ids
+
+        groups = []
+        for group_id in group_ids:
+            if group_id not in self.groups:
+                return False
+
+            groups.append(self.groups[group_id])
+
+        return groups
+
+    def get_users(self, group_id):
+        if group_id not in self.groups:
+            return False
+
+        user_ids = self.groups[group_id].user_ids
+
+        users = []
+        for user_id in user_ids:
+            if user_id not in self.users:
+                return False
+
+            users.append(self.users[user_id])
+
+        return users
+
     def enter_group(self, user_id, subject_id, group_id):
         if user_id not in self.users:
             return False
