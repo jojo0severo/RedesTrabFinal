@@ -1,0 +1,21 @@
+<html>
+    <head>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            function doConnection(){
+                console.log(document.getElementById("fname").value);
+                $.ajax({
+                    type: "POST",
+                    url: 'http://127.0.0.1:5000/doConnection',
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify(document.getElementById("fname").value),
+                });
+            }
+        </script>
+    </head>
+    <body>
+    <input type="text" id="fname" name="fname">
+    <button onclick="doConnection()">Entrar</button>
+    </body>
+</html>
