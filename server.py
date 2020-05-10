@@ -1,4 +1,3 @@
-import time
 import json
 from gevent.server import DatagramServer
 from controller.json_transformer import JSONTransformer
@@ -19,7 +18,8 @@ class MultiThreadServer(DatagramServer):
             'joinGroup': self.transformer.join_group,
             'leaveGroup': self.transformer.leave_group,
             'startMatch': self.transformer.start_match,
-            'endMatch': self.transformer.end_match
+            'endMatch': self.transformer.end_match,
+            'ok': self._ok
         }
 
     def handle(self, data, address):
@@ -30,8 +30,10 @@ class MultiThreadServer(DatagramServer):
             json_received['address'] = address
 
         response = self.event_handler.get(event, default=self.transformer.unrecognized)(json_received['json'])
-
         self.socket.sendto(json.dumps(response).encode('utf-8'), address)
+
+    def _ok(self, *args):
+        return {'result': True, 'status': 200, 'message': 'Ok', 'data': {}}
 
 
 if __name__ == '__main__':
