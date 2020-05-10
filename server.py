@@ -23,13 +23,13 @@ class MultiThreadServer(DatagramServer):
         }
 
     def handle(self, data, address):
-        json_received = json.loads(data.decode('utf-8'))
+        json_received = json.loads(data.decode('utf-8').replace("'",'"'))
 
         event = json_received['event']
         if event == 'connect':
-            json_received['address'] = address
+            json_received["json"]['address'] = address
 
-        response = self.event_handler.get(event, default=self.transformer.unrecognized)(json_received['json'])
+        response = self.event_handler.get(event, self.transformer.unrecognized)(json_received['json'])
         self.socket.sendto(json.dumps(response).encode('utf-8'), address)
 
     def _ok(self, *args):
