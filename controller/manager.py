@@ -14,36 +14,18 @@ class Manager:
         _id = Generator()
         self.subjects[_id] = Subject(_id, name)
 
-    def add_user(self, name):
+    def add_user(self, name, address):
         _id = Generator()
-        self.users[_id] = User(_id, name)
+        self.users[_id] = User(_id, address, name)
 
-    def add_group(self, user_id, subject_id, group_name):
-        if user_id not in self.users:
-            return False
-
-        if subject_id not in self.subjects:
-            return False
-
-        _id = Generator()
-
-        if not self.users[user_id].add_group(group_id=_id, subject_id=subject_id, is_host=True):
-            return False
-
-        group = Group(_id, group_name)
-        group.add_user(user_id)
-
-        self.groups[_id] = group
-        self.subjects[subject_id].add_group(_id)
-
-        return True
+        return True, _id
 
     def get_subjects(self):
-        return list(self.subjects.values())
+        return True, list(self.subjects.values())
 
     def get_groups(self, subject_id):
         if subject_id not in self.subjects:
-            return False
+            return False, 'Subject not registered'
 
         group_ids = self.subjects[subject_id].group_ids
 
@@ -54,11 +36,11 @@ class Manager:
 
             groups.append(self.groups[group_id])
 
-        return groups
+        return True, groups
 
     def get_users(self, group_id):
         if group_id not in self.groups:
-            return False
+            return False, 'Group not registered'
 
         user_ids = self.groups[group_id].user_ids
 
@@ -69,52 +51,73 @@ class Manager:
 
             users.append(self.users[user_id])
 
-        return users
+        return True, users
+
+    def add_group(self, user_id, subject_id, group_name):
+        if user_id not in self.users:
+            return False, 'User not registered'
+
+        if subject_id not in self.subjects:
+            return False, 'Subject not registered'
+
+        _id = Generator()
+
+        if not self.users[user_id].add_group(group_id=_id, subject_id=subject_id, is_host=True):
+            return False, 'User already in group'
+
+        group = Group(_id, group_name)
+        group.add_user(user_id)
+
+        self.groups[_id] = group
+        self.subjects[subject_id].add_group(_id)
+
+        return True, _id
 
     def enter_group(self, user_id, subject_id, group_id):
         if user_id not in self.users:
-            return False
+            return False, 'User not registered'
 
         if subject_id not in self.subjects:
-            return False
+            return False, 'Subject not registered'
 
         if group_id not in self.groups:
-            return False
+            return False, 'Group not registered'
 
         if not self.users[user_id].add_group(group_id=group_id, subject_id=subject_id, is_host=False):
-            return False
+            return False, 'User already in group'
 
         self.groups[group_id].add_user(user_id)
 
-        return True
+        return True, 'User entered the group'
 
-    def cancel_group(self, user_id):
+    def leave_group(self, user_id):
         if user_id not in self.users:
-            return False
+            return False, 'User not registered'
 
-        user = self.users[user_id]
-        if user.is_host:
-            if not self.subjects[user.subject_id].remove_group(user.group_id):
-                return False
+        if not self.users[user_id].group_id or not self.users[user_id].subject_id:
+            return False, 'User not in any group'
 
-            user.group = None
-            user.subject = None
-            self.groups.pop(user.group_id)
+        group_id = self.users[user_id].group_id
 
-            return True
+        if not self.groups[group_id].remove_user(user_id):
+            return False, 'User not in the specified group'
 
-        return False
+        self.users[user_id].group_id = None
+        self.users[user_id].subject_id = None
+
+        return True, 'User left the group'
 
     def user_finished(self, user_id):
         if user_id not in self.users:
-            return False
+            return False, 'User not registered'
 
         user = self.users[user_id]
         if not user.playing:
-            return False
+            return False, 'User is not playing'
 
         user.playing = False
-        return True
+
+        return True, 'User finished'
 
     def all_finished(self, user_id):
         user = self.users[user_id]

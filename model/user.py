@@ -1,7 +1,7 @@
 
 
 class User:
-    def __init__(self, _id, name):
+    def __init__(self, _id, address, name):
         self.id = _id
         self.is_host = False
         self.name = name
