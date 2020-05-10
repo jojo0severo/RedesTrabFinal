@@ -11,6 +11,11 @@
                     contentType: "application/json",
                     data: JSON.stringify(document.getElementById("fname").value),
                 });
+                
+            }
+            function get_subjects(){
+                doConnection();
+                window.location.replace("http://127.0.0.1:5000/subject");   
             }
         </script>
     </head>
@@ -30,7 +35,7 @@
                 </td>
                 <td>
                     <input type="text" id="fname" name="fname">
-                    <button onclick="doConnection()">Entrar</button>
+                    <button onclick="get_subjects()">Entrar</button>
                 </td>
                 </tr>
             </table>
