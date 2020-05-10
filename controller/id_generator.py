@@ -2,5 +2,5 @@ import uuid
 
 
 class Generator:
-    def __call__(self, *args, **kwargs):
-        return uuid.uuid4()
+    def __new__(cls, *args, **kwargs):
+        return str(uuid.uuid4())
