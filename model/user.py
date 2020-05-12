@@ -24,3 +24,8 @@ class User:
 
     def add_score(self):
         self.score += 1
+
+    def leave_group(self):
+        self.group_id = None
+        self.subject_id = None
+        self.is_host = False

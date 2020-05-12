@@ -102,10 +102,12 @@ class Manager:
         if not self.groups[group_id].remove_user(user_id):
             return False, 'User not in the specified group'
 
-        self.users[user_id].group_id = None
-        self.users[user_id].subject_id = None
+        if self.groups[group_id].empty():
+            self.groups.pop(group_id)
 
-        return True, 'User left the group'
+        self.users[user_id].leave_group()
+
+        return True, group_id
 
     def user_finished(self, user_id):
         if user_id not in self.users:

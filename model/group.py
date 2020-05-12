@@ -16,3 +16,6 @@ class Group:
 
         except ValueError:
             return False
+
+    def empty(self):
+        return len(self.user_ids) == 0
