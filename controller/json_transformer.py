@@ -8,11 +8,11 @@ class JSONTransformer:
     def connect_user(self, json):
         name = json['name']
         address = json['address']
-        
+
         result, message = self.manager.add_user(name, address)
         return {'result': True, 'status': 201, 'message': 'User connected', 'data': {'id': message}}
 
-    def get_subjects(self, json):
+    def get_subjects(self):
         result, message = self.manager.get_subjects()
 
         json_subjects = []
@@ -56,7 +56,8 @@ class JSONTransformer:
 
         result, message = self.manager.add_group(user_id, subject_id, group_name)
         if result:
-            return {'result': True, 'status': 200, 'message': 'Group created', 'data': {'id': message, 'name': group_name}}
+            return {
+                'result': True, 'status': 200, 'message': 'Group created', 'data': {'id': message, 'name': group_name}}
         else:
             return {'result': False, 'status': 400, 'message': message, 'data': {}}
 
@@ -67,11 +68,9 @@ class JSONTransformer:
 
         result, message = self.manager.enter_group(user_id, subject_id, group_id)
         if result:
-            status = 200
+            return {'result': result, 'status': 200, 'message': message, 'data': {'group_id': group_id}}
         else:
-            status = 400
-
-        return {'result': result, 'status': status, 'message': message, 'data': {}}
+            return {'result': result, 'status': 400, 'message': message, 'data': {}}
 
     def leave_group(self, json):
         user_id = json['user_id']
@@ -80,9 +79,7 @@ class JSONTransformer:
         if result:
             return {'result': result, 'status': 200, 'message': 'User left the group', 'data': {'group_id': message}}
         else:
-            status = 400
-
-        return {'result': result, 'status': status, 'message': message, 'data': {}}
+            return {'result': result, 'status': 400, 'message': message, 'data': {}}
 
     def start_match(self, json):
         pass

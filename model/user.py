@@ -3,6 +3,7 @@
 class User:
     def __init__(self, _id, address, name):
         self.id = _id
+        self.address = address
         self.is_host = False
         self.name = name
         self.score = 0
@@ -15,8 +16,6 @@ class User:
             self.group_id = group_id
             self.subject_id = subject_id
             self.is_host = is_host
-
-            self.playing = True
 
             return True
 
