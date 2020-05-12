@@ -78,7 +78,7 @@ class JSONTransformer:
 
         result, message = self.manager.leave_group(user_id)
         if result:
-            status = 200
+            return {'result': result, 'status': 200, 'message': 'User left the group', 'data': {'group_id': message}}
         else:
             status = 400
 
@@ -98,5 +98,51 @@ class JSONTransformer:
 
         return {'result': result, 'status': status, 'message': message, 'data': {}}
 
-    def unrecognized(self):
-        return {'result': False, 'status': 400, 'message': 'Unrecognized event', 'data': {}}
+    def unrecognized(self, event):
+        return {'result': False, 'status': 400, 'message': 'Unrecognized event', 'data': {'received': str(event)}}
+
+    def json_decode_error(self, data, error):
+        return {
+            'result': False, 'status': 400, 'message': 'JSON Decode error',
+            'data': {'received': str(data), 'error_message': error}
+        }
+
+    def get_update_response(self, event_name, excluded_address, json_data):
+        if event_name == 'create_group':
+            data = self.get_groups(json_data)['data']
+            resp = {'result': True, 'status': 205, 'message': 'updateGroups', 'data': data}
+
+            addresses = [user.address for user in self.manager.users.values() if user.group_id is None]
+
+        elif event_name == 'join_group':
+            data = self.get_users(json_data['data'])['data']
+            resp = {'result': True, 'status': 205, 'message': 'updateUsers', 'data': data}
+
+            users_ids = [obj['id'] for obj in data]
+            addresses = [self.manager.users[user_id].address for user_id in users_ids]
+
+        elif event_name == 'leave_group':
+            data = self.get_users(json_data['data'])['data']
+            resp = {'result': True, 'status': 205, 'message': 'updateUsers', 'data': data}
+
+            users_ids = [obj['id'] for obj in data]
+            addresses = [self.manager.users[user_id].address for user_id in users_ids]
+
+        elif event_name == 'start_match':
+            addresses = None
+            resp = None
+
+        elif event_name == 'end_match':
+            addresses = None
+            resp = None
+
+        else:
+            addresses = None
+            resp = None
+
+        try:
+            addresses.remove(excluded_address)
+        except ValueError:
+            pass
+
+        return resp, addresses
