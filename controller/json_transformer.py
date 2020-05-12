@@ -1,9 +1,9 @@
-from controller.manager import Manager
+from controller.database_loader import Loader
 
 
 class JSONTransformer:
     def __init__(self):
-        self.manager = Manager()
+        self.manager = Loader().manager
 
     def connect_user(self, json):
         name = json['name']
