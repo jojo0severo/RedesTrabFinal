@@ -1,0 +1,14 @@
+INSERT INTO subject (name, fonte) VALUES ("Geral", "https://moodle.pucrs.br/pluginfile.php/2219278/mod_resource/content/4/Introducao2.pdf");
+INSERT INTO subject (name, fonte) VALUES ("Camadas de Comunicacao", "https://moodle.pucrs.br/pluginfile.php/2187818/mod_resource/content/3/Modelos.pdf");
+INSERT INTO subject (name, fonte) VALUES ("Equipamentos de Interconexao", "https://moodle.pucrs.br/pluginfile.php/2187826/mod_resource/content/3/Equipamentos-interc.pdf");
+INSERT INTO subject (name, fonte) VALUES ("NAT (Network Address Translator)", "https://moodle.pucrs.br/pluginfile.php/2245403/mod_resource/content/2/NAT.pdf");
+INSERT INTO subject (name, fonte) VALUES ("DHCP (Dynamic Host Configuration Protocol)", "https://moodle.pucrs.br/pluginfile.php/2245402/mod_resource/content/5/DHCP.pdf");
+INSERT INTO subject (name, fonte) VALUES ("SMTP (Simple Message Transfer Protocol)", "https://moodle.pucrs.br/pluginfile.php/2245401/mod_resource/content/3/SMTP-POP-IMAP.pdf");
+INSERT INTO subject (name, fonte) VALUES ("POP (Post Office Protocol)", "https://moodle.pucrs.br/pluginfile.php/2245401/mod_resource/content/3/SMTP-POP-IMAP.pdf");
+INSERT INTO subject (name, fonte) VALUES ("IMAP (Internet Message Access Protocol)", "https://moodle.pucrs.br/pluginfile.php/2245401/mod_resource/content/3/SMTP-POP-IMAP.pdf");
+INSERT INTO subject (name, fonte) VALUES ("DNS (Domain Name System)", "https://moodle.pucrs.br/pluginfile.php/2245363/mod_resource/content/6/DNS-2.pdf");
+INSERT INTO subject (name, fonte) VALUES ("Controle de Fluxo e de Congestionamento TCP", "https://moodle.pucrs.br/pluginfile.php/2187841/mod_resource/content/11/Congestionamento%20TCP3.pdf");
+INSERT INTO subject (name, fonte) VALUES ("Protocolo TCP", "https://moodle.pucrs.br/pluginfile.php/2187840/mod_resource/content/6/TCP-UDP.pdf");
+INSERT INTO subject (name, fonte) VALUES ("Protocolo UDP", "https://moodle.pucrs.br/pluginfile.php/2187840/mod_resource/content/6/TCP-UDP.pdf");
+INSERT INTO subject (name, fonte) VALUES ("Protocolo HTTP", "https://moodle.pucrs.br/pluginfile.php/2255908/mod_resource/content/5/HTTP.pdf");
+INSERT INTO subject (name, fonte) VALUES ("Protocolo IPV4", "https://moodle.pucrs.br/pluginfile.php/2187852/mod_resource/content/7/IPv4.pdf");
