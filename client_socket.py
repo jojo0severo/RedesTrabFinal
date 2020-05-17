@@ -2,10 +2,8 @@ import time
 from socket import AF_INET, socket, SOCK_DGRAM
 
 
-class Client:
+class ClientSender:
     def __init__(self, host='127.0.0.1', port=8080, buffer_size=4096):
-        self.responses = []
-        self.keep_listening = True
         self.buffer_size = buffer_size
         self.server_address = (host, port)
         self.client_socket = socket(AF_INET, SOCK_DGRAM)
@@ -32,3 +30,10 @@ class Client:
                 break
 
         self.check_ok()
+
+
+class ClientReceiver:
+    def __init__(self, host='127.0.0.1', port=9000, buffer_size=4096):
+        self.keep_listening = True
+        self.client_socket = socket()
+        pass

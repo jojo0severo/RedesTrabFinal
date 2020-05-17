@@ -1,8 +1,22 @@
-from flask import Flask, request, render_template, jsonify,redirect
-from client_socket import Client
+from flask import Flask, request, render_template, session
+from functools import wraps
+from client_socket import ClientSender
+
 
 app = Flask(__name__)
-client = None
+manager = Manager()
+
+
+def session_decorator(function):
+    @wraps(function)
+    def session_checker(*args, **kwargs):
+        user = session.get('USER')
+        if user is None:
+            return render_template('home.html')
+
+        return function(*args, **kwargs)
+
+    return session_checker
 
 
 @app.route('/', methods=['GET'])
@@ -10,29 +24,10 @@ def home():
     return render_template('home.html')
 
 
-@app.route('/subject', methods=['GET'])
-def subjects_page():
-    return render_template('subjects.html')
-
-@app.route('/rooms', methods=['GET'])
-def rooms():
-    return render_template('rooms.html')
-
-@app.route('/new-room', methods=['GET'])
-def new_room():
-    return render_template('new_room.html')
-
-
-@app.route('/doConnection/', methods=['POST'])
-def do_connection():
-    global client
-
-    client = Client()
-    client.send(request.get_json().encode('utf-8'))
-
-    return jsonify('Ok')
-
-
+@app.route('/doConnection', methods=['POST'])
+@session_decorator
+def doConnection():
+    data = request.get_json()
 
 
 if __name__ == '__main__':
