@@ -66,7 +66,9 @@ def return_room():
     if user.upper().strip() in [i.upper().strip() for i in people]:
         sufix = randint(0,99)
         people.add(user+str(sufix))
-    people.add(user)
+        
+    else:
+        people.add(user)
     return render_template('room.html',groups = people ,room = [room],subject=[subject])
 
 @app.route('/new-room', methods=['GET'])
@@ -103,7 +105,6 @@ def start_game():
         if game_done:
             
             if winner:
-                
                 return render_template('winner.html',winner=[user],points = [correct_enswers])
             
             else:
