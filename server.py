@@ -11,7 +11,7 @@ room = ""
 rooms_list = {"Sala A","Sala B"}
 people = {"joao","Hellen"}
 user = "Carlo"
-type_client = ""
+type_client = "host"
 questions = [{ 
         "questionTitle": "Pergunta 1",
         "alternatives": ["Resposta 1", "Resposta 2", "Resposta 3", "Resposta 4"],
@@ -89,7 +89,7 @@ def register_group():
     return jsonify('Ok')
 
 def start_game():
-    global questions, current_question, type_client, winner, game_done
+    global questions, current_question, type_client, winner, game_done,correct_enswers, user
     
     if current_question < len(questions):
     
@@ -101,10 +101,13 @@ def start_game():
         return render_template('question.html',pergunta = [question_title], respostas = answers)
     else:
         if game_done:
+            
             if winner:
-                return render_template('winner.html')
+                
+                return render_template('winner.html',winner=[user],points = [correct_enswers])
+            
             else:
-                return render_template('loser.html')
+                return render_template('loser.html',winner=["claudio"],points = [50],ponto =[ correct_enswers])
         else:
             time.sleep(1)
             game_done = True

@@ -12,7 +12,11 @@
             div.a{ text-align: center;padding-top: 50;}
         </style>
         <div class = a>
-            <h1>Parabéns, Você venceu</h1>
+            {% for w in winner %}
+            {% for p in points %}
+            <h1>Parabéns, {{w}}. Você venceu com {{p}} pontos</h1>
+            {% endfor %}
+            {% endfor %}
             <table style="align-items: center; padding-left: 300;">
                 <tr>
                     <td>

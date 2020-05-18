@@ -13,6 +13,14 @@
         </style>
         <div class = a>
             <h1>Infelizmente você perdeu</h1>
+            {% for w in winner %}
+            {% for p in points %}
+            <h2>O vencedor, com {{p}} pontos, foi {{w}}</h2>
+            {% for pontos in ponto %}
+            <h3>Seus pontos foram: {{pontos}}</h3>
+            {% endfor %}
+            {% endfor %}
+            {% endfor %}
             <table style="align-items: center; padding-left: 300;">
                 <tr>
                     <td>
