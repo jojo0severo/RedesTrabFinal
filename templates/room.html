@@ -2,9 +2,9 @@
     <head>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script type="text/javascript">
-            function get_rooms(){
-                
-                window.location.replace("http://127.0.0.1:5000/room");   
+            function go_question(){
+    
+                window.location.replace("http://127.0.0.1:5000/question");   
             }
 
 
@@ -18,6 +18,7 @@
             {% for sala in room%}
             <h1>{{sala}}</h1><br><br><br><br><br><br><br><br>
             {% endfor %}
+            <div class = a>
             <table style="align-items: center; padding-left: 300;">
                 <tr>
                     {% for person in groups%}
@@ -27,7 +28,7 @@
                     {% for assunto in subject%}
                     <h1>{{assunto}}</h1><br><br><br><br><br><br><br><br>
                     {% endfor %}
-                    <button onclick="get_rooms()">Entrar</button>
+                    <button onclick="go_question()">Entrar</button>
                 </td>
 
                 </tr>
