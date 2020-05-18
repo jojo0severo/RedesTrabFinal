@@ -1,158 +1,84 @@
-import time
-import json
-import socket
-from controller.json_transformer import JSONTransformer
+from flask import Flask, request, render_template, jsonify,redirect,json
+#from client_socket import Client
+
+app = Flask(__name__)
+client = None
+subject = ""
+room = ""
+rooms_list = ["Sala A","Sala B"]
+people = {"joao","Hellen"}
+user = "Carlo"
 
 
-class SocketServer:
-    def __init__(self, host='127.0.0.1', port=8080):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.bind((host, port))
-        print(f'Listening into: "{host}:{port}"')
+@app.route('/', methods=['GET'])
+def home():
+    return render_template('home.html')
 
-        self.transformer = JSONTransformer()
 
-        self.event_handler = {
-            'connect': self.connect_user,
-            'getSubjects': self.get_subjects,
-            'getGroups': self.get_groups,
-            'getUsers': self.get_users,
-            'createGroup': self.create_group,
-            'joinGroup': self.join_group,
-            'leaveGroup': self.leave_group,
-            'startMatch': self.start_match,
-            'endMatch': self.end_match
-        }
+@app.route('/room', methods=['POST'])
+def room():
+    global subject, room
 
-    def listen(self):
-        while True:
-            message, address = self.socket.recvfrom(4096)
-            self.handle(message.decode('utf-8').replace('\'', '"'), address)
+    if request.get_json().get("subject") is None:
+        room = request.get_json().get("room")
+    else:
+        subject = request.get_json().get("subject")
+        
+        
+    print("assunto: {}".format(subject))
+    print("sala: {}".format(room))
+    
+    return jsonify('Ok')
 
-    def handle(self, data, address):
-        try:
-            json_received = json.loads(data)
 
-            event = json_received['event']
-            if event == 'connect':
-                json_received['json']['address'] = address
+@app.route('/subject', methods=['GET'])
+def subjects_page():
+    
+    subjects = ["Assunto A","Assunto B","Assunto C"]#client.subject
+    print(subjects)
+    print(type(subjects))
+    return render_template('subjects.html',subjects = subjects)
 
-            if event not in self.event_handler:
-                self.unrecognized(address, event)
-            else:
-                self.event_handler.get(event)(address, json_received['json'])
+@app.route('/rooms', methods=['GET'])
+def rooms():
+    global subject,rooms_list
+    return render_template('rooms.html',groups = rooms_list,subject=[subject])
 
-        except json.JSONDecodeError as err:
-            self.json_decode_error(address, data, str(err))
+@app.route('/room', methods=['GET'])
+def return_room():
+    global room, people, user
+    print("sala: {}".format(room))
+    if user in people:
+        people.add(user+str(range(99)))
+    people.add(user)
+    return render_template('room.html',groups = people ,room = [room],subject=[subject])
 
-    def send(self, message, address):
-        self.socket.sendto(message, address)
-        now = time.time()
-        while time.time() - now < 5:
-            msg, addr = self.socket.recvfrom(4096)
-            msg = msg.decode('utf-8')
-            if addr == address and msg.lower() == 'ok':
-                self.socket.sendto('ok'.encode('utf-8'), address)
-                self.check_ok(address)
-                return
+@app.route('/new-room', methods=['GET'])
+def new_room():
+    return render_template('new_room.html')
 
-        self.send(message, address)
+@app.route('/new-room', methods=['POST'])
+def register_group():
+    global rooms_list
+    new_room = request.get_json().get("new_room")
+    print(new_room)
+    rooms_list.append(new_room)
+    
+    return jsonify('Ok')
 
-    def check_ok(self, address):
-        self.socket.sendto('ok'.encode('utf-8'), address)
+@app.route('/doConnection/', methods=['POST'])
+def do_connection():
+    # global client
 
-        now = time.time()
-        while time.time() - now < 5:
-            msg, addr = self.socket.recvfrom(4096)
-            msg = msg.decode('utf-8')
-            if addr == address and msg.lower() == 'ok':
-                return
-            else:
-                break
+    # client = Client()
+    # client.send(str(request.get_json()).encode('utf-8'))
+    # subjects = client.send('{"event": "getSubjects", "json": {}}'.encode('utf-8'))
 
-        self.check_ok(address)
+    # client.subject = json.loads(subjects)["data"]
+    return jsonify('Ok')
 
-    def connect_user(self, address, json_data):
-        response = self.transformer.connect_user(json_data)
 
-        str_resp = json.dumps(response).encode('utf-8')
-        self.send(str_resp, address)
-
-    def get_subjects(self, address, json_data):
-        response = self.transformer.get_subjects()
-
-        str_resp = json.dumps(response).encode('utf-8')
-        self.send(str_resp, address)
-
-    def get_groups(self, address, json_data):
-        response = self.transformer.get_groups(json_data)
-
-        str_resp = json.dumps(response).encode('utf-8')
-        self.send(str_resp, address)
-
-    def get_users(self, address, json_data):
-        response = self.transformer.get_users(json_data)
-
-        str_resp = json.dumps(response).encode('utf-8')
-        self.send(str_resp, address)
-
-    def create_group(self, address, json_data):
-        response = self.transformer.create_group(json_data)
-
-        str_resp = json.dumps(response).encode('utf-8')
-        self.send(str_resp, address)
-
-        if response['result']:
-            update_response, addresses = self.transformer.get_update_response('create_group', address, json_data)
-            str_update_resp = json.dumps(update_response).encode('utf-8')
-            for addr in addresses:
-                self.send(str_update_resp, addr)
-
-    def join_group(self, address, json_data):
-        response = self.transformer.join_group(json_data)
-
-        str_resp = json.dumps(response).encode('utf-8')
-        self.send(str_resp, address)
-
-        if response['result']:
-            update_response, addresses = self.transformer.get_update_response('join_group', address, response)
-            str_update_resp = json.dumps(update_response).encode('utf-8')
-            for addr in addresses:
-                self.send(str_update_resp, addr)
-
-    def leave_group(self, address, json_data):
-        response = self.transformer.leave_group(json_data)
-
-        str_resp = json.dumps(response).encode('utf-8')
-        self.send(str_resp, address)
-
-        if response['result']:
-            update_response, addresses = self.transformer.get_update_response('leave_group', address, response)
-            str_update_resp = json.dumps(update_response).encode('utf-8')
-            for addr in addresses:
-                self.send(str_update_resp, addr)
-
-    def start_match(self, address, json_data):
-        # str_resp = json.dumps(response).encode('utf-8')
-        # self.send(str_resp, address)
-        pass
-
-    def end_match(self, address, json_data):
-        # str_resp = json.dumps(response).encode('utf-8')
-        # self.send(str_resp, address)
-        pass
-
-    def unrecognized(self, address, event):
-        resp = self.transformer.unrecognized(event)
-        str_resp = json.dumps(resp).encode('utf-8')
-        self.send(str_resp, address)
-
-    def json_decode_error(self, address, json_data, error):
-        resp = self.transformer.json_decode_error(json_data, error)
-        str_resp = json.dumps(resp).encode('utf-8')
-        self.send(str_resp, address)
 
 
 if __name__ == '__main__':
-    s = SocketServer()
-
+    app.run()

@@ -1,0 +1,39 @@
+<html>
+    <head>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            function new_room(){
+                window.location.replace("http://127.0.0.1:5000/new-room");   
+            }
+            function go_room(room){
+                $.ajax({
+                    type: "POST",
+                    url: 'http://127.0.0.1:5000/room',
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify({"room":room}),
+                    success: function(x){
+                        window.location.replace("http://127.0.0.1:5000/room");
+                    }
+                });
+                //window.location.replace("http://127.0.0.1:5000/room");   
+            }
+        </script>
+    </head>
+    <body>
+        <style>
+            div.a{ text-align: center;padding-top: 50;}
+        </style>
+        <div class = a>
+            <h1>Perguntas do batatão</h1>
+            {% for i in subject %}
+            <h2>salas do assunto: {{i}}</h2>
+            {% endfor %}
+            <button onclick="new_room()">Adicionar</button><br><br>
+            {% for room in groups %}
+            <button id="button" onclick="go_room('{{room}}')", value="{{room}}">{{room}}</button><br><br>
+            {% endfor %}
+            
+    </div>
+    </body>
+</html>

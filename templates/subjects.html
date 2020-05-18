@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript">
+        
+            function get_rooms(subject){
+                $.ajax({
+                    type: "POST",
+                    url: 'http://127.0.0.1:5000/room',
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify({"subject":subject}),
+                    success: function(x){
+                        window.location.replace("http://127.0.0.1:5000/rooms");
+                    }
+                });
+                   
+            }
+        </script>
+    </head>
+    <body>
+        <style>
+            div.a{ text-align: center;padding-top: 50;}
+        </style>
+        <div class = a>
+            <h1>Perguntas do batatão</h1>
+            <h2>Assuntos do batatão</h2>
+            {% for subject in subjects %}
+            <button id="button" value="{{subject}}" onclick="get_rooms('{{subject}}')">{{subject}}</button><br><br>
+            {% endfor %}
+            
+
+    </div>
+    </body>
+</html>

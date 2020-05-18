@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            function new_room(){
+                $.ajax({
+                    type: "POST",
+                    url: 'http://127.0.0.1:5000//new-room',
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify({"new_room":document.getElementById("fname").value}),
+                    success: function(x){
+                        window.location.replace("http://127.0.0.1:5000/rooms");
+                    }
+                });
+            }
+
+        </script>
+    </head>
+    <body>
+        <style>
+            div.a{ text-align: center;padding-top: 50;}
+        </style>
+        <div class = a>
+            <h1>Perguntas do batatão</h1>
+            Nome da sala: <br><br>
+            <input type="text" id="fname" name="fname" title="nome da sala"><br><br><br><br><br><br><br><br>
+            <button onclick="new_room()">Registrar</button>
+            
+
+    </div>
+    </body>
+</html>

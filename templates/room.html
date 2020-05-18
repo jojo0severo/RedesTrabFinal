@@ -1,0 +1,38 @@
+<html>
+    <head>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            function get_rooms(){
+                
+                window.location.replace("http://127.0.0.1:5000/room");   
+            }
+
+
+        </script>
+    </head>
+    <body>
+        <style>
+            div.a{ text-align: center;padding-top: 50;}
+        </style>
+        <div class = a>
+            {% for sala in room%}
+            <h1>{{sala}}</h1><br><br><br><br><br><br><br><br>
+            {% endfor %}
+            <table style="align-items: center; padding-left: 300;">
+                <tr>
+                    {% for person in groups%}
+                    <td> {{person}}<br></td>
+                    {% endfor %}
+                <td>
+                    {% for assunto in subject%}
+                    <h1>{{assunto}}</h1><br><br><br><br><br><br><br><br>
+                    {% endfor %}
+                    <button onclick="get_rooms()">Entrar</button>
+                </td>
+
+                </tr>
+            </table>
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,44 @@
+<html>
+    <head>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            function doConnection(){
+                console.log(document.getElementById("fname").value);
+                // $.ajax({
+                //     type: "POST",
+                //     url: 'http://127.0.0.1:5000/doConnection',
+                //     dataType: "json",
+                //     contentType: "application/json",
+                //     data: JSON.stringify({"event": "connect", "json": {"name": document.getElementById("fname").value}}),
+                //     success: function(x){
+                //     //window.location.replace("http://127.0.0.1:5000/subject");
+                //     }
+                // });
+                window.location.replace("http://127.0.0.1:5000/subject");
+                
+            }
+        </script>
+    </head>
+    <body>
+        <style>
+            div.a{ text-align: center;}
+        </style>
+        <div class = a>
+            <h1>Perguntas do batatão</h1>
+            <table style="align-items: center;">
+                <tr>
+                    <td>
+                        <img
+                        src="https://media.discordapp.net/attachments/703007556322197574/708554141823402084/batata-desenho-png-4.png" 
+                        width=50% height=50%
+                    >
+                </td>
+                <td>
+                    <input type="text" id="fname" name="fname" >
+                    <button onclick="doConnection()">Entrar</button>
+                </td>
+                </tr>
+            </table>
+    </div>
+    </body>
+</html>
