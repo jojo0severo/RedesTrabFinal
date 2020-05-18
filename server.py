@@ -1,5 +1,7 @@
 from flask import Flask, request, render_template, jsonify,redirect,json
 import time
+import sys
+sys.setrecursionlimit(100000)
 #from client_socket import Client
 
 app = Flask(__name__)
