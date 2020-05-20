@@ -2,8 +2,32 @@
     <head>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script type="text/javascript">
-            function go_question(){
-                window.location.replace("http://127.0.0.1:5000/question");
+            function start(){
+                $.ajax({
+                    type: "POST",
+                    url: 'http://127.0.0.1:5000/start',
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify('estamos prontos, capitão'),
+                    success: function (resp) {
+                        window.location = resp;
+                    },
+                    error: function (_) {
+                        start();
+                    }
+                });
+            }
+            function leave() {
+                $.ajax({
+                    type: "POST",
+                    url: 'http://127.0.0.1:5000/leave',
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify('adeus, capitão'),
+                    success: function (resp) {
+                        window.location = resp;
+                    }
+                });
             }
         </script>
     </head>
@@ -24,7 +48,8 @@
                 {% endfor %}
             </table>
 
-            <button onclick="go_question()">Começar</button>
+            <button onclick="start()" style="display:inline;">Começar</button>
+            <button onclick="leave()" style="display:inline;">Sair</button>
         </div>
     </body>
 </html>

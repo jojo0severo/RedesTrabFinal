@@ -63,5 +63,17 @@ def new_group():
     return render_template('new_group.html')
 
 
+@app.route('/start')
+def start():
+    return jsonify('ok')
+
+
+@app.route('/leave', methods=['POST'])
+def leave():
+    manager.leave_group()
+
+    return jsonify(url_for('groups'))
+
+
 if __name__ == '__main__':
     app.run()

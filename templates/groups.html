@@ -29,11 +29,9 @@
             <button onclick="createGroup()">Adicionar</button>
             <br>
             <br>
-            {% for id, name, players_number in rooms %}
+            {% for id, name in rooms %}
                 <div>
                     <pre style="display:inline;">{{ name }}</pre>
-                    <pre style="display:inline;">   |   </pre>
-                    <pre style="display:inline;">Qtd. jogadores: {{ players_number }}</pre>
                     <pre style="display:inline;">   |   </pre>
                     <button onclick="joinGroup('{{ id }}')" style="display:inline;">Entrar</button><br><br>
                 </div>

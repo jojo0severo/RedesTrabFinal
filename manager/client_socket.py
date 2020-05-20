@@ -1,4 +1,3 @@
-import time
 from threading import Thread
 from socket import AF_INET, socket, SOCK_DGRAM
 
@@ -11,24 +10,19 @@ class ClientSender:
 
     def send(self, message):
         self.client_socket.sendto(message, self.server_address)
-        now = time.time()
-        while time.time() - now < 3:
-            msg = self.client_socket.recv(self.buffer_size).decode('utf-8')
-            if msg:
-                self.check_ok()
-                return msg
+        msg = self.client_socket.recv(self.buffer_size).decode('utf-8')
+        if msg:
+            self.check_ok()
+            return msg
 
         self.send(message)
 
     def check_ok(self):
-        self.client_socket.sendto('Ok'.encode('utf-8'), self.server_address)
-        now = time.time()
-        while time.time() - now < 5:
-            msg = self.client_socket.recv(self.buffer_size).decode('utf-8')
-            if msg == 'ok':
-                return
-            else:
-                break
+        self.client_socket.sendto('ok'.encode('utf-8'), self.server_address)
+        msg = self.client_socket.recv(self.buffer_size).decode('utf-8')
+        if msg.lower() == 'ok':
+            self.client_socket.sendto('ok'.encode('utf-8'), self.server_address)
+            return
 
         self.check_ok()
 

@@ -23,39 +23,19 @@ class Manager:
     def get_user(self):
         return self.user
 
-    def connect_user(self, data):
-        # resp = self._send('connect', data)
-        # self.user = User(resp['data']['id'], resp['data']['name'])
-        self.user = User(0, data)
-        return True
+    def connect_user(self, user_name):
+        resp = self._send('connect', user_name)
+
+        self.user = User(resp['data']['id'], resp['data']['name'])
 
     @decorate_subjects
     def get_subjects(self):
         return self.subjects
 
     def recover_subjects(self):
-        # resp = self._send('getSubjects')
+        resp = self._send('getSubjects')
 
-        resp = {
-            "status": 200,
-            "result": True,
-            "response": "Subjects recovered",
-            "data": [
-                {
-                    "id": '1',
-                    "subjectName": "Assunto 1"
-                },
-                {
-                    "id": '2',
-                    "subjectName": "Assunto 2"
-                },
-                {
-                    "id": '3',
-                    "subjectName": "Assunto 3"
-                }
-            ]
-        }
-
+        self.subjects.clear()
         if resp['result']:
             for subject in resp['data']:
                 self.subjects.append(Subject(subject['id'], subject['subjectName']))
@@ -73,65 +53,27 @@ class Manager:
                 self.user.subject = subject
                 break
 
-        # resp = self._send('getGroups', data)
+        resp = self._send('getGroups', subject_id)
 
-        resp = {
-            "status": 200,
-            "result": True,
-            "response": "Groups recovered",
-            "data": [
-                {
-                    "id": '1',
-                    "groupName": "Nome da sala 1",
-                    "playersNumber": 1
-                },
-                {
-                    "id": '2',
-                    "groupName": "Nome da sala 2",
-                    "playersNumber": 1
-                },
-                {
-                    "id": '3',
-                    "groupName": "Nome da sala 3",
-                    "playersNumber": 1
-                },
-                {
-                    "id": '4',
-                    "groupName": "Nome da sala 4",
-                    "playersNumber": 1
-                }
-            ]
-        }
-
+        self.groups.clear()
         if resp['result']:
             for group in resp['data']:
-                self.groups.append(Group(group['id'], group['groupName'], group['playersNumber']))
+                self.groups.append(Group(group['id'], group['groupName']))
 
         else:
-            self.groups.append(Group(0, resp['message'], 0))
+            self.groups.append(Group(0, resp['message']))
 
     @decorate_group
     def get_group(self):
         return self.user.group
 
     def enter_group(self, group_id):
-        # resp = self._send('joinGroup', [self.user.id, self.user.subject.id, group_id])
-
-        resp = {
-            "status": 201,
-            "result": True,
-            "response": "Group recovered",
-            "data": [
-                "nome 1",
-                "nome 2",
-                "nome 3"
-            ]
-        }
+        resp = self._send('joinGroup', [self.user.id, self.user.subject.id, group_id])
 
         if resp['result']:
             for group in self.groups:
                 if group.id == group_id:
-                    group.users = [*resp['data'], self.user.name]
+                    group.users = resp['data']
                     self.user.group = group
                     break
 
@@ -143,29 +85,31 @@ class Manager:
                     break
 
     def create_group(self, group_name):
-        # resp = self._send('createGroup', [self.user.id, self.user.subject.id, group_name])
-
-        resp = {
-            "status": 201,
-            "result": True,
-            "response": "Group created",
-            "data": {
-                "id": '1',
-                'groupName': group_name,
-                'playersNumber': 1
-            }
-        }
+        resp = self._send('createGroup', [self.user.id, self.user.subject.id, group_name])
 
         if resp['result']:
-            group = Group(resp['data']['id'], resp['data']['groupName'], resp['data']['playersNumber'])
+            group = Group(resp['data']['id'], resp['data']['groupName'])
             group.users = [self.user.name]
 
         else:
-            group = Group(0, resp['message'], 0)
+            group = Group(0, resp['message'])
 
         self.groups.append(group)
         self.user.group = group
 
+    def leave_group(self):
+        resp = self._send('leaveGroup', self.user.id)
+
+        self.groups.clear()
+        if resp['result']:
+            self.user.group = None
+            for group in resp['data']:
+                self.groups.append(Group(group['id'], group['groupName']))
+
+        else:
+            self.groups.append(Group(0, resp['message']))
+
+    @transform
     def _send(self, event, data=None):
         if event == 'connect':
             data = get_connection_request(data)
@@ -181,6 +125,11 @@ class Manager:
 
         elif event == 'createGroup':
             data = create_group_request(*data)
+
+        elif event == 'leaveGroup':
+            data = leave_group_request(data)
+
+        data = data.encode('utf-8')
 
         self.lock.acquire()
         resp = self.sender.send(data)

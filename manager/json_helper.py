@@ -1,6 +1,15 @@
 import json
 
 
+def transform(function):
+    def transform(*args, **kwargs):
+        resp = function(*args, **kwargs)
+
+        return json.loads(resp.replace('\'', '"'))
+
+    return transform
+
+
 def get_connection_request(name):
     return json.dumps({"event": "connect", "json": {"name": name}})
 
@@ -14,11 +23,15 @@ def get_groups_request(subject_id):
 
 
 def join_group_request(user_id, subject_id, group_id):
-    return {"event": "joinGroup", "json": {"user_id": user_id, "subject_id": subject_id, "group_id": group_id}}
+    return json.dumps({"event": "joinGroup", "json": {"user_id": user_id, "subject_id": subject_id, "group_id": group_id}})
 
 
 def create_group_request(user_id, subject_id, group_name):
-    return {"event": "createGroup", "json": {"user_id": user_id, "subject_id": subject_id, "group_name": group_name}}
+    return json.dumps({"event": "createGroup", "json": {"user_id": user_id, "subject_id": subject_id, "group_name": group_name}})
+
+
+def leave_group_request(user_id):
+    return json.dumps({"event": "leaveGroup", "json": {"user_id": user_id}})
 
 
 def decorate_user(function):
@@ -33,7 +46,7 @@ def decorate_user(function):
         group = resp.group
         json_group = {}
         if group is not None:
-            json_group = {'id': group.id, 'name': group.name, 'playersNumber': group.players_number}
+            json_group = {'id': group.id, 'name': group.name}
 
         return {
             'id': resp.id, 'name': resp.name,
@@ -63,7 +76,7 @@ def decorate_groups(function):
 
         groups = []
         for group in resp:
-            groups.append((group.id, group.name, group.players_number))
+            groups.append((group.id, group.name))
 
         return groups
 
