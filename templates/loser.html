@@ -1,0 +1,38 @@
+<html>
+    <head>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            function close(){
+                //fechar jogo
+            }
+        </script>
+    </head>
+    <body>
+        <style>
+            div.a{ text-align: center;padding-top: 50;}
+        </style>
+        <div class = a>
+            <h1>Infelizmente você perdeu</h1>
+            {% for w in winner %}
+            {% for p in points %}
+            <h2>O vencedor, com {{p}} pontos, foi {{w}}</h2>
+            {% for pontos in ponto %}
+            <h3>Seus pontos foram: {{pontos}}</h3>
+            {% endfor %}
+            {% endfor %}
+            {% endfor %}
+            <table style="align-items: center; padding-left: 300;">
+                <tr>
+                    <td>
+                        <img
+                        src="https://2.bp.blogspot.com/-QP9pei1fOVU/XA7SoY6vxJI/AAAAAAAAKCM/Bc81vLEk1tU65-_6LdQKdfyvaj9HCvUKgCLcBGAs/s1600/lisa-perdedora_473_945_c.jpg"
+                    >
+                </td>
+                <td>
+                </td>
+                </tr>
+            </table><br><br>
+            <button onclick="close()">Encerrar</button>
+    </div>
+    </body>
+</html>

@@ -1,0 +1,43 @@
+<html>
+    <head>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            function createGroup(){
+                window.location = "{{ url_for('new_group') }}";
+            }
+            function joinGroup(group_id){
+                $.ajax({
+                    type: "POST",
+                    url: 'http://127.0.0.1:5000/group',
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify(group_id),
+                    success: function (resp) {
+                        window.location = resp;
+                    }
+                });
+            }
+        </script>
+    </head>
+    <body>
+        <style>
+            div.a{ text-align: center;padding-top: 50px;}
+        </style>
+        <div class = a>
+            <h1>Perguntas do batatão</h1>
+            <h2>Salas do assunto: {{ subject }}</h2>
+            <button onclick="createGroup()">Adicionar</button>
+            <br>
+            <br>
+            {% for id, name, players_number in rooms %}
+                <div>
+                    <pre style="display:inline;">{{ name }}</pre>
+                    <pre style="display:inline;">   |   </pre>
+                    <pre style="display:inline;">Qtd. jogadores: {{ players_number }}</pre>
+                    <pre style="display:inline;">   |   </pre>
+                    <button onclick="joinGroup('{{ id }}')" style="display:inline;">Entrar</button><br><br>
+                </div>
+            {% endfor %}
+        </div>
+    </body>
+</html>

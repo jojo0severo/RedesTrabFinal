@@ -1,0 +1,30 @@
+<html>
+    <head>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            function go_question(){
+                window.location.replace("http://127.0.0.1:5000/question");
+            }
+        </script>
+    </head>
+    <body>
+        <style>
+            div.a{ text-align: center;padding-top: 50px;}
+        </style>
+        <div class = a>
+            <p>Assunto do grupo: {{ subject }}</p>
+            <p>Nome do grupo: {{ group_name }}</p>
+            <br>
+            <p>Integrantes:</p>
+            <table style="align-items: center; padding-left: 300px;">
+                {% for name in people %}
+                <tr>
+                    <td>{{ name }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            <button onclick="go_question()">Começar</button>
+        </div>
+    </body>
+</html>

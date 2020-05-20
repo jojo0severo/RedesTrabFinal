@@ -2,17 +2,19 @@
     <head>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script type="text/javascript">
-        
-            function getGroups(subject_id){
+            function createGroup(){
                 $.ajax({
                     type: "POST",
-                    url: 'http://127.0.0.1:5000/groups',
+                    url: 'http://127.0.0.1:5000/new_group',
                     dataType: "json",
                     contentType: "application/json",
-                    data: JSON.stringify(subject_id),
+                    data: JSON.stringify(document.getElementById("fname").value),
                     success: function (resp) {
+                        console.log('success ' + resp);
                         window.location = resp;
-
+                    },
+                    error: function (resp) {
+                        console.log('error' + resp);
                     }
                 });
             }
@@ -25,10 +27,9 @@
         </style>
         <div class = a>
             <h1>Perguntas do batatão</h1>
-            <h2>Assuntos do batatão</h2>
-            {% for id, name in subjects %}
-            <button onclick="getGroups('{{ id }}')">{{ name }}</button><br><br>
-            {% endfor %}
-    </div>
+            Nome da sala: <br><br>
+            <input type="text" id="fname" title="nome da sala"><br><br><br><br><br><br><br><br>
+            <button onclick="createGroup()">Registrar</button>
+        </div>
     </body>
 </html>
