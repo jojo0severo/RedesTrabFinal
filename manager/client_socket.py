@@ -1,9 +1,10 @@
 import time
+from threading import Thread
 from socket import AF_INET, socket, SOCK_DGRAM
 
 
 class ClientSender:
-    def __init__(self, host='127.0.0.1', port=8080, buffer_size=4096):
+    def __init__(self, host, port, buffer_size):
         self.buffer_size = buffer_size
         self.server_address = (host, port)
         self.client_socket = socket(AF_INET, SOCK_DGRAM)
@@ -33,7 +34,20 @@ class ClientSender:
 
 
 class ClientReceiver:
-    def __init__(self, host='127.0.0.1', port=9000, buffer_size=4096):
+    def __init__(self, manager, lock, host, port, buffer_size):
         self.keep_listening = True
-        self.client_socket = socket()
-        pass
+        self.manager = manager
+        self.lock = lock
+        self.buffer_size = buffer_size
+        self.client_socket = socket(AF_INET, SOCK_DGRAM)
+        self.client_socket.bind((host, port))
+
+        Thread(target=self.listen).start()
+
+    def listen(self):
+        while self.keep_listening:
+            msg = self.client_socket.recv(self.buffer_size)
+
+            self.lock.acquire()
+            self.manager.handle_update(msg)
+            self.lock.release()
