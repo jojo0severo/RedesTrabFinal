@@ -10,14 +10,14 @@ class JSONTransformer:
         address = json['address']
 
         result, message = self.manager.add_user(name, address)
-        return {'result': True, 'status': 201, 'message': 'User connected', 'data': {'id': message}}
+        return {'result': True, 'status': 201, 'message': 'User connected', 'data': {'id': message, 'name': name}}
 
     def get_subjects(self):
         result, message = self.manager.get_subjects()
 
         json_subjects = []
         for subject in message:
-            json_subjects.append({'id': subject.id, 'name': subject.name})
+            json_subjects.append({'id': subject.id, 'subjectName': subject.name})
 
         return {'result': True, 'status': 200, 'message': 'Subjects recovered', 'data': json_subjects}
 
@@ -28,7 +28,7 @@ class JSONTransformer:
         if result:
             json_groups = []
             for group in message:
-                json_groups.append({'id': group.id, 'name': group.name})
+                json_groups.append({'id': group.id, 'groupName': group.name})
 
             return {'result': True, 'status': 200, 'message': 'Groups recovered', 'data': json_groups}
 
@@ -57,7 +57,12 @@ class JSONTransformer:
         result, message = self.manager.add_group(user_id, subject_id, group_name)
         if result:
             return {
-                'result': True, 'status': 200, 'message': 'Group created', 'data': {'id': message, 'name': group_name}}
+                'result': True, 'status': 200, 'message': 'Group created',
+                'data': {
+                    'id': message[0],
+                    'groupName': group_name
+                }
+            }
         else:
             return {'result': False, 'status': 400, 'message': message, 'data': {}}
 
@@ -68,18 +73,28 @@ class JSONTransformer:
 
         result, message = self.manager.enter_group(user_id, subject_id, group_id)
         if result:
-            return {'result': result, 'status': 200, 'message': message, 'data': {'group_id': group_id}}
+            return {'result': result, 'status': 200, 'message': 'User joined the group', 'data': message}, {'group_id': group_id}
         else:
-            return {'result': result, 'status': 400, 'message': message, 'data': {}}
+            return {'result': result, 'status': 400, 'message': message, 'data': {}}, None
 
     def leave_group(self, json):
         user_id = json['user_id']
 
         result, message = self.manager.leave_group(user_id)
         if result:
-            return {'result': result, 'status': 200, 'message': 'User left the group', 'data': {'group_id': message}}
+            if message[1] is None:
+                json_groups = []
+            else:
+                _, groups = self.manager.get_groups(message[0].subject_id)
+
+                json_groups = []
+                for group in groups:
+                    json_groups.append({'id': group.id, 'groupName': group.name})
+
+            return {'result': True, 'status': 200, 'message': 'User left the group', 'data': json_groups}, {'group_id': message[1]}
+
         else:
-            return {'result': result, 'status': 400, 'message': message, 'data': {}}
+            return {'result': False, 'status': 400, 'message': message, 'data': []}, None
 
     def start_match(self, json):
         pass
@@ -109,21 +124,21 @@ class JSONTransformer:
             data = self.get_groups(json_data)['data']
             resp = {'result': True, 'status': 205, 'message': 'updateGroups', 'data': data}
 
-            addresses = [user.address for user in self.manager.users.values() if user.group_id is None]
+            addresses = [user.receive_address for user in self.manager.users.values() if user.group_id is None]
 
         elif event_name == 'join_group':
-            data = self.get_users(json_data['data'])['data']
+            data = self.get_users(json_data)['data']
             resp = {'result': True, 'status': 205, 'message': 'updateUsers', 'data': data}
 
             users_ids = [obj['id'] for obj in data]
-            addresses = [self.manager.users[user_id].address for user_id in users_ids]
+            addresses = [self.manager.users[user_id].receive_address for user_id in users_ids]
 
         elif event_name == 'leave_group':
-            data = self.get_users(json_data['data'])['data']
+            data = self.get_users(json_data)['data']
             resp = {'result': True, 'status': 205, 'message': 'updateUsers', 'data': data}
 
             users_ids = [obj['id'] for obj in data]
-            addresses = [self.manager.users[user_id].address for user_id in users_ids]
+            addresses = [self.manager.users[user_id].receive_address for user_id in users_ids]
 
         elif event_name == 'start_match':
             addresses = None

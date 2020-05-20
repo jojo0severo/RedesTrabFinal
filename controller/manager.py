@@ -32,7 +32,7 @@ class Manager:
         groups = []
         for group_id in group_ids:
             if group_id not in self.groups:
-                return False
+                return False, 'Internal Error'
 
             groups.append(self.groups[group_id])
 
@@ -88,7 +88,9 @@ class Manager:
 
         self.groups[group_id].add_user(user_id)
 
-        return True, 'User entered the group'
+        users = [self.users[user_id].name for user_id in self.groups[group_id].user_ids]
+
+        return True, users
 
     def leave_group(self, user_id):
         if user_id not in self.users:
@@ -102,12 +104,13 @@ class Manager:
         if not self.groups[group_id].remove_user(user_id):
             return False, 'User not in the specified group'
 
-        if self.groups[group_id].empty():
-            self.groups.pop(group_id)
-
         self.users[user_id].leave_group()
 
-        return True, group_id
+        if self.groups[group_id].empty():
+            self.groups.pop(group_id)
+            return True, (self.users[user_id], None)
+
+        return True, (self.users[user_id], group_id)
 
     def user_finished(self, user_id):
         if user_id not in self.users:

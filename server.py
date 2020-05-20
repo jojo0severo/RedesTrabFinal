@@ -1,4 +1,3 @@
-import time
 import json
 import socket
 from controller.json_transformer import JSONTransformer
@@ -7,8 +6,8 @@ from controller.json_transformer import JSONTransformer
 class SocketServer:
     def __init__(self, host='127.0.0.1', port=8080):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.socket.settimeout(5)
         self.socket.bind((host, port))
-        print(f'Listening into: "{host}:{port}"')
 
         self.transformer = JSONTransformer()
 
@@ -23,11 +22,16 @@ class SocketServer:
             'startMatch': self.start_match,
             'endMatch': self.end_match
         }
+        print(f'Listening into: "{host}:{port}"')
+        self.listen()
 
     def listen(self):
         while True:
-            message, address = self.socket.recvfrom(4096)
-            self.handle(message.decode('utf-8').replace('\'', '"'), address)
+            try:
+                message, address = self.socket.recvfrom(4096)
+                self.handle(message.decode('utf-8').replace('\'', '"'), address)
+            except socket.timeout:
+                pass
 
     def handle(self, data, address):
         try:
@@ -47,28 +51,21 @@ class SocketServer:
 
     def send(self, message, address):
         self.socket.sendto(message, address)
-        now = time.time()
-        while time.time() - now < 5:
-            msg, addr = self.socket.recvfrom(4096)
-            msg = msg.decode('utf-8')
-            if addr == address and msg.lower() == 'ok':
-                self.socket.sendto('ok'.encode('utf-8'), address)
-                self.check_ok(address)
-                return
+        msg, addr = self.socket.recvfrom(4096)
+        msg = msg.decode('utf-8')
+        if addr == address and msg.lower() == 'ok':
+            self.check_ok(address)
+            return
 
         self.send(message, address)
 
     def check_ok(self, address):
         self.socket.sendto('ok'.encode('utf-8'), address)
 
-        now = time.time()
-        while time.time() - now < 5:
-            msg, addr = self.socket.recvfrom(4096)
-            msg = msg.decode('utf-8')
-            if addr == address and msg.lower() == 'ok':
-                return
-            else:
-                break
+        msg, addr = self.socket.recvfrom(4096)
+        msg = msg.decode('utf-8')
+        if addr == address and msg.lower() == 'ok':
+            return
 
         self.check_ok(address)
 
@@ -76,61 +73,106 @@ class SocketServer:
         response = self.transformer.connect_user(json_data)
 
         str_resp = json.dumps(response).encode('utf-8')
-        self.send(str_resp, address)
+        try:
+            self.send(str_resp, address)
+        except:
+            pass
 
     def get_subjects(self, address, json_data):
         response = self.transformer.get_subjects()
 
         str_resp = json.dumps(response).encode('utf-8')
-        self.send(str_resp, address)
+        try:
+            self.send(str_resp, address)
+        except:
+            pass
 
     def get_groups(self, address, json_data):
         response = self.transformer.get_groups(json_data)
 
         str_resp = json.dumps(response).encode('utf-8')
-        self.send(str_resp, address)
+        try:
+            self.send(str_resp, address)
+        except:
+            pass
 
     def get_users(self, address, json_data):
         response = self.transformer.get_users(json_data)
 
         str_resp = json.dumps(response).encode('utf-8')
-        self.send(str_resp, address)
+        try:
+            self.send(str_resp, address)
+        except:
+            pass
 
     def create_group(self, address, json_data):
         response = self.transformer.create_group(json_data)
 
         str_resp = json.dumps(response).encode('utf-8')
-        self.send(str_resp, address)
+        try:
+            self.send(str_resp, address)
+        except:
+            pass
 
         if response['result']:
             update_response, addresses = self.transformer.get_update_response('create_group', address, json_data)
             str_update_resp = json.dumps(update_response).encode('utf-8')
-            for addr in addresses:
-                self.send(str_update_resp, addr)
+            last_addr = None
+            try:
+                for addr in addresses:
+                    last_addr = addr
+                    self.send(str_update_resp, addr)
+            except ConnectionRefusedError:
+                for user in self.transformer.manager.users.values():
+                    if user.address == last_addr:
+                        self.leave_group(last_addr, {'user_id': user.id})
+                        break
 
     def join_group(self, address, json_data):
-        response = self.transformer.join_group(json_data)
+        response, group_id = self.transformer.join_group(json_data)
 
         str_resp = json.dumps(response).encode('utf-8')
-        self.send(str_resp, address)
+        try:
+            self.send(str_resp, address)
+        except:
+            pass
 
-        if response['result']:
-            update_response, addresses = self.transformer.get_update_response('join_group', address, response)
+        if response['result'] and group_id is not None:
+            update_response, addresses = self.transformer.get_update_response('join_group', address, group_id)
             str_update_resp = json.dumps(update_response).encode('utf-8')
-            for addr in addresses:
-                self.send(str_update_resp, addr)
+            last_addr = None
+            try:
+                for addr in addresses:
+                    last_addr = addr
+                    self.send(str_update_resp, addr)
+            except:
+                for user in self.transformer.manager.users.values():
+                    if user.address == last_addr:
+                        self.leave_group(last_addr, {'user_id': user.id})
+                        break
 
     def leave_group(self, address, json_data):
-        response = self.transformer.leave_group(json_data)
+        response, group_id = self.transformer.leave_group(json_data)
 
         str_resp = json.dumps(response).encode('utf-8')
-        self.send(str_resp, address)
+        try:
+            self.send(str_resp, address)
+        except:
+            pass
 
-        if response['result']:
-            update_response, addresses = self.transformer.get_update_response('leave_group', address, response)
+        if response['result'] and group_id is not None:
+            update_response, addresses = self.transformer.get_update_response('leave_group', address, group_id)
             str_update_resp = json.dumps(update_response).encode('utf-8')
-            for addr in addresses:
-                self.send(str_update_resp, addr)
+            last_addr = None
+            try:
+                for addr in addresses:
+                    last_addr = addr
+                    self.send(str_update_resp, addr)
+            except ConnectionRefusedError:
+                for user in self.transformer.manager.users.values():
+                    if user.address == last_addr:
+                        self.leave_group(last_addr, {'user_id': user.id})
+                        break
 
     def start_match(self, address, json_data):
         # str_resp = json.dumps(response).encode('utf-8')
@@ -145,14 +187,19 @@ class SocketServer:
     def unrecognized(self, address, event):
         resp = self.transformer.unrecognized(event)
         str_resp = json.dumps(resp).encode('utf-8')
-        self.send(str_resp, address)
+        try:
+            self.send(str_resp, address)
+        except:
+            pass
 
     def json_decode_error(self, address, json_data, error):
         resp = self.transformer.json_decode_error(json_data, error)
         str_resp = json.dumps(resp).encode('utf-8')
-        self.send(str_resp, address)
+        try:
+            self.send(str_resp, address)
+        except:
+            pass
 
 
 if __name__ == '__main__':
-    s = SocketServer()
-
+    SocketServer()
