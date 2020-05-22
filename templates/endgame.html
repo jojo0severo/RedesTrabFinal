@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            function close(){
+                window.location.replace("http://127.0.0.1:5000/");
+            }
+        </script>
+    </head>
+    <body>
+        <style>
+            div.a{ text-align: center;padding-top: 50px;}
+        </style>
+        <div class = a>
+            {% for w in winner %}
+                {% for p in points %}
+                    <h1>Parabéns, {{w}}. Você venceu com {{p}} pontos</h1>
+                {% endfor %}
+            {% endfor %}
+            <table style="align-items: center; padding-left: 300px;">
+                <tr>
+                    <td>
+                        <img src="https://editoravida.net.br/novo/wp-content/uploads/2020/04/Blog-Vencedor-870x390.jpg">
+                    </td>
+                </tr>
+            </table>
+            <br>
+            <br>
+            <div class = a>
+                <button onclick="close()" style="display: inline;">Voltar ao grupo</button>
+                <button onclick="close()" style="display: inline;">Voltar aos grupos</button>
+            </div>
+        </div>
+    </body>
+</html>

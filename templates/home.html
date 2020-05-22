@@ -5,7 +5,7 @@
             function doConnection(){
                 $.ajax({
                     type: "POST",
-                    url: 'http://127.0.0.1:5000/subjects',
+                    url: 'http://127.0.0.1:{{flask_port}}/subjects',
                     dataType: "json",
                     contentType: "application/json",
                     data: JSON.stringify(document.getElementById("fname").value),

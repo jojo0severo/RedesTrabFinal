@@ -2,17 +2,16 @@
     <head>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script type="text/javascript">
-        
+
             function getGroups(subject_id){
                 $.ajax({
                     type: "POST",
-                    url: 'http://127.0.0.1:5000/groups',
+                    url: 'http://127.0.0.1:{{flask_port}}/groups',
                     dataType: "json",
                     contentType: "application/json",
                     data: JSON.stringify(subject_id),
                     success: function (resp) {
                         window.location = resp;
-
                     }
                 });
             }

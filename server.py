@@ -21,7 +21,7 @@ manager = Manager(host=host, port=port, server_host=server_host, server_port=ser
 
 @app.route('/', methods=['GET'])
 def home():
-    return render_template('home.html')
+    return render_template('home.html', flask_port=flask_port)
 
 
 @app.route('/subjects', methods=['GET', 'POST'])
@@ -34,7 +34,7 @@ def subjects():
         return jsonify(url_for('subjects'))
 
     recovered_subjects = manager.get_subjects()
-    return render_template('subjects.html', subjects=recovered_subjects)
+    return render_template('subjects.html', subjects=recovered_subjects, flask_port=flask_port)
 
 
 @app.route('/groups', methods=['GET', 'POST'])
@@ -47,7 +47,11 @@ def groups():
 
     recovered_groups = manager.get_groups()
     user = manager.get_user()
-    return render_template('groups.html', rooms=recovered_groups, subject=user['subject']['name'])
+    return render_template('groups.html',
+                           flask_port=flask_port,
+                           rooms=recovered_groups,
+                           subject=user['subject']['name'],
+                           subject_id=user['subject']['id'])
 
 
 @app.route('/group', methods=['GET', 'POST'])
@@ -61,6 +65,8 @@ def group():
     recovered_group = manager.get_group()
     user = manager.get_user()
     return render_template('group.html',
+                           flask_port=flask_port,
+                           group_id=user['group']['id'],
                            subject=user['subject']['name'],
                            group_name=recovered_group['name'],
                            people=recovered_group['users'])
@@ -74,10 +80,10 @@ def new_group():
 
         return jsonify(url_for('group'))
 
-    return render_template('new_group.html')
+    return render_template('new_group.html', flask_port=flask_port)
 
 
-@app.route('/start')
+@app.route('/start', methods=['POST'])
 def start():
     return jsonify('ok')
 
@@ -90,4 +96,4 @@ def leave():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=flask_port)
