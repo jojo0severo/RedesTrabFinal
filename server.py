@@ -16,7 +16,7 @@ except:
     pass
 
 app = Flask(__name__)
-manager = Manager()
+manager = Manager(host=host, port=port, server_host=server_host, server_port=server_port, buffer_size=buffer_size)
 
 
 @app.route('/', methods=['GET'])
