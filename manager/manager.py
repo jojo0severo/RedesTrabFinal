@@ -143,4 +143,24 @@ class Manager:
         return resp
 
     def handle_update(self, data):
-        pass
+        data = json.loads(data)
+        if data['message'] == 'updateGroups':
+            self.update_groups(data['data'])
+
+        elif data['message'] == 'updateUsers':
+            self.update_users(data['data'])
+
+        elif data['message'] == 'startGame':
+            pass
+
+        elif data['message'] == 'endGame':
+            pass
+
+    def update_groups(self, groups):
+        for group in groups:
+            self.groups.append(Group(group['id'], group['groupName']))
+
+    def update_users(self, users):
+        self.user.group.users.clear()
+        for user in users:
+            self.user.group.users.append(user['name'])
