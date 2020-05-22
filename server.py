@@ -1,5 +1,19 @@
-from manager.manager import Manager
+import sys
 from flask import Flask, request, render_template, jsonify, url_for
+from manager.manager import Manager
+
+
+args = sys.argv[1:]
+flask_port, host, port, server_host, server_port, buffer_size = 5000, '127.0.0.1', 9001, '127.0.0.1', 65000, 4096
+try:
+    flask_port = int(args[0])
+    host = args[1]
+    port = int(args[2])
+    server_host = args[3]
+    server_port = int(args[4])
+    buffer_size = int(args[5])
+except:
+    pass
 
 app = Flask(__name__)
 manager = Manager()

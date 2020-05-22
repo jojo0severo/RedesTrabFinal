@@ -3,10 +3,12 @@ from socket import AF_INET, socket, SOCK_DGRAM
 
 
 class ClientSender:
-    def __init__(self, host, port, buffer_size):
+    def __init__(self, host, port, server_host, server_port, buffer_size):
         self.buffer_size = buffer_size
-        self.server_address = (host, port)
+        self.server_address = (server_host, server_port)
         self.client_socket = socket(AF_INET, SOCK_DGRAM)
+        self.client_socket.bind((host, port))
+        self.client_socket.settimeout(5)
 
     def send(self, message):
         self.client_socket.sendto(message, self.server_address)

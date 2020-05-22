@@ -9,15 +9,20 @@ from model.quiz import Quiz
 
 
 class Manager:
-    def __init__(self, host='127.0.0.1', port=9000, buffer_size=4096):
+    def __init__(self, host, port, server_host, server_port, buffer_size):
         self.quiz = None
         self.user = None
         self.subjects = []
         self.groups = []
 
         self.lock = Lock()
-        self.sender = ClientSender(host=host, port=port - 920, buffer_size=buffer_size)
-        ClientReceiver(manager=self, lock=self.lock, host=host, port=port, buffer_size=buffer_size)
+        self.sender = ClientSender(host=host,
+                                   port=port,
+                                   server_host=server_host,
+                                   server_port=server_port,
+                                   buffer_size=buffer_size)
+
+        ClientReceiver(manager=self, lock=self.lock, host=host, port=port+1, buffer_size=buffer_size)
 
     @decorate_user
     def get_user(self):
