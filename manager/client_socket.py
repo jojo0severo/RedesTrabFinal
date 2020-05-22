@@ -1,5 +1,5 @@
 from threading import Thread
-from socket import AF_INET, socket, SOCK_DGRAM
+from socket import AF_INET, socket, SOCK_DGRAM, timeout
 
 
 class ClientSender:
@@ -11,19 +11,27 @@ class ClientSender:
         self.client_socket.settimeout(5)
 
     def send(self, message):
-        self.client_socket.sendto(message, self.server_address)
-        msg = self.client_socket.recv(self.buffer_size).decode('utf-8')
-        if msg:
-            self.check_ok()
-            return msg
+        try:
+            self.client_socket.sendto(message, self.server_address)
+            msg = self.client_socket.recv(self.buffer_size).decode('utf-8')
+            if msg:
+                self.check_ok()
+                return msg
+
+        except timeout:
+            pass
 
         self.send(message)
 
     def check_ok(self):
         self.client_socket.sendto('ok'.encode('utf-8'), self.server_address)
-        msg = self.client_socket.recv(self.buffer_size).decode('utf-8')
+
+        try:
+            msg = self.client_socket.recv(self.buffer_size).decode('utf-8')
+        except timeout:
+            return
+
         if msg.lower() == 'ok':
-            self.client_socket.sendto('ok'.encode('utf-8'), self.server_address)
             return
 
         self.check_ok()
@@ -37,13 +45,35 @@ class ClientReceiver:
         self.buffer_size = buffer_size
         self.client_socket = socket(AF_INET, SOCK_DGRAM)
         self.client_socket.bind((host, port))
+        self.client_socket.settimeout(5)
 
         Thread(target=self.listen).start()
 
     def listen(self):
         while self.keep_listening:
-            msg = self.client_socket.recv(self.buffer_size)
+            try:
+                msg, address = self.client_socket.recvfrom(self.buffer_size)
 
-            self.lock.acquire()
-            self.manager.handle_update(msg)
-            self.lock.release()
+                self.lock.acquire()
+
+                self.manager.handle_update(msg)
+                self.check_ok(address)
+
+                self.lock.release()
+
+            except timeout:
+                pass
+
+    def check_ok(self, address):
+        self.client_socket.sendto('ok'.encode('utf-8'), address)
+
+        try:
+            msg, addr = self.client_socket.recvfrom(4096)
+        except timeout:
+            return
+
+        msg = msg.decode('utf-8')
+        if addr == address and msg.lower() == 'ok':
+            return
+
+        self.check_ok(address)
