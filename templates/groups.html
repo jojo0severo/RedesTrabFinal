@@ -2,13 +2,19 @@
     <head>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script type="text/javascript">
+
+            function returnSubjects() {
+                window.location = "{{ url_for('subjects') }}";
+            }
+
             function createGroup(){
                 window.location = "{{ url_for('new_group') }}";
             }
+
             function joinGroup(group_id){
                 $.ajax({
                     type: "POST",
-                    url: 'http://127.0.0.1:5000/group',
+                    url: "http://127.0.0.1:{{flask_port}}/group",
                     dataType: "json",
                     contentType: "application/json",
                     data: JSON.stringify(group_id),
@@ -17,6 +23,18 @@
                     }
                 });
             }
+
+            function loop() {
+                setTimeout(function () {
+                    location.reload();
+
+                    loop();
+
+                }, 5000);
+            }
+
+            loop();
+
         </script>
     </head>
     <body>
@@ -36,6 +54,7 @@
                     <button onclick="joinGroup('{{ id }}')" style="display:inline;">Entrar</button><br><br>
                 </div>
             {% endfor %}
+            <button onclick="returnSubjects()" >Voltar</button>
         </div>
     </body>
 </html>
