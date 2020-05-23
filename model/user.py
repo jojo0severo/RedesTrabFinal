@@ -7,3 +7,4 @@ class User:
 
         self.group = None
         self.subject = None
+        self.started = False

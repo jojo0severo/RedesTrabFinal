@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript">
+
+            function nextQuestion(answer){
+                $.ajax({
+                    type: "POST",
+                    url: "http://127.0.0.1:{{flask_port}}/questions",
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify(answer),
+                    success: function(resp){
+                        window.location = resp;
+                    }
+                });
+            }
+
+        </script>
+
+        <style>
+            div.a{ text-align: center;padding-top: 50px; }
+        </style>
+    </head>
+    <body>
+        <div class = a>
+            <h1>{{ question_title }}</h1>
+            <br>
+            <br>
+            {% for id, alternative in alternatives %}
+                <button onclick="nextQuestion('{{ id }}')">{{ alternative }}</button>
+            {% endfor %}
+        </div>
+    </body>
+</html>

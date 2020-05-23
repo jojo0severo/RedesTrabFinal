@@ -14,11 +14,12 @@
                     contentType: "application/json",
                     data: JSON.stringify('estamos prontos, capitão'),
                     success: function (resp) {
-                        // if ("")
-                        // window.location = resp;
-                    },
-                    error: function (_) {
-                        start();
+                        if (resp === 'wait'){
+                            setTimeout(start(), 3000);
+                        }
+                        else{
+                            window.location = resp;
+                        }
                     }
                 });
             }

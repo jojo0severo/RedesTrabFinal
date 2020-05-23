@@ -83,16 +83,25 @@ def new_group():
     return render_template('new_group.html', flask_port=flask_port)
 
 
-@app.route('/start', methods=['POST'])
-def start():
-    return jsonify('ok')
-
-
 @app.route('/leave', methods=['POST'])
 def leave():
     manager.leave_group()
 
     return jsonify(url_for('groups'))
+
+
+@app.route('/start', methods=['POST'])
+def start():
+    resp = manager.start_match()
+    if resp:
+        return jsonify(url_for('questions'))
+
+    return jsonify('wait')
+
+
+@app.route('/questions', methods=['GET'])
+def questions():
+    return render_template('questions.html', flask_port=flask_port)
 
 
 if __name__ == '__main__':

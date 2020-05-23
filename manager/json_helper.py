@@ -34,6 +34,10 @@ def leave_group_request(user_id):
     return json.dumps({"event": "leaveGroup", "json": {"user_id": user_id}})
 
 
+def start_match_request(user_id):
+    return json.dumps({"event": "startMatch", "json": {"user_id": user_id}})
+
+
 def decorate_user(function):
     def format_user(*args, **kwargs):
         resp = function(*args, **kwargs)
@@ -90,3 +94,21 @@ def decorate_group(function):
         return {'id': resp.id, 'name': resp.name, 'users': resp.users}
 
     return format_group
+
+
+def decorate_quiz(function):
+    def format_quiz(*args, **kwargs):
+        resp = function(*args, **kwargs)
+
+        if isinstance(resp, dict):
+            if not resp['result']:
+                return False
+
+            return True
+
+        elif resp is None:
+            return False
+
+        return True
+
+    return format_quiz

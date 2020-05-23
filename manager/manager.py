@@ -6,6 +6,7 @@ from model.user import User
 from model.subject import Subject
 from model.group import Group
 from model.quiz import Quiz
+from model.question import Question
 
 
 class Manager:
@@ -114,6 +115,14 @@ class Manager:
         else:
             self.groups.append(Group(0, resp['message']))
 
+    @decorate_quiz
+    def start_match(self):
+        if self.user.started:
+            return self.quiz
+
+        self.user.started = True
+        return self._send('startMatch', self.user.id)
+
     @transform
     def _send(self, event, data=None):
         if event == 'connect':
@@ -134,6 +143,9 @@ class Manager:
         elif event == 'leaveGroup':
             data = leave_group_request(data)
 
+        elif event == 'startMatch':
+            data = start_match_request(data)
+
         data = data.encode('utf-8')
 
         self.lock.acquire()
@@ -151,7 +163,7 @@ class Manager:
             self.update_users(data['data'])
 
         elif data['message'] == 'startGame':
-            pass
+            self.update_quiz(data['data'])
 
         elif data['message'] == 'endGame':
             pass
@@ -164,3 +176,10 @@ class Manager:
         self.user.group.users.clear()
         for user in users:
             self.user.group.users.append(user['name'])
+
+    def update_quiz(self, questions):
+        obj_questions = []
+        for q in questions:
+            obj_questions .append(Question(q['questionTitle'], q['alternatives'], q['correctAlternative']))
+
+        self.quiz = Quiz(self.user.subject.name, obj_questions)
