@@ -9,10 +9,7 @@ class Manager:
         self.users = {}
         self.subjects = {}
         self.groups = {}
-
-    def _add_subject(self, name):
-        _id = Generator()
-        self.subjects[_id] = Subject(_id, name)
+        self.quizzes = {}
 
     def add_user(self, name, address):
         _id = Generator()
@@ -113,7 +110,21 @@ class Manager:
 
         return True, (self.users[user_id], group_id)
 
-    def user_finished(self, user_id):
+    def start_match(self, user_id):
+        if user_id not in self.users:
+            return False, 'User not registered'
+
+        user = self.users[user_id]
+        if not user.playing:
+            user.playing = True
+            if self.all_started(user.group_id):
+                return True, self.subjects[user.subject_id].quiz.questions
+
+            return True, 'Some players still dont started'
+
+        return False, 'User was already playing'
+
+    def end_match(self, user_id):
         if user_id not in self.users:
             return False, 'User not registered'
 
@@ -125,9 +136,22 @@ class Manager:
 
         return True, 'User finished'
 
-    def all_finished(self, user_id):
-        user = self.users[user_id]
-        for us_id in self.groups[user.group_id].user_ids:
+    def get_questions(self, group_id):
+        group_id = group_id['group_id']
+        user_id = self.groups[group_id].user_ids[0]
+        subject_id = self.users[user_id].subject_id
+
+        return self.subjects[subject_id].quiz.questions
+
+    def all_started(self, group_id):
+        for us_id in self.groups[group_id].user_ids:
+            if not self.users[us_id].playing:
+                return False
+
+        return True
+
+    def all_finished(self, group_id):
+        for us_id in self.groups[group_id].user_ids:
             if self.users[us_id].playing:
                 return False
 

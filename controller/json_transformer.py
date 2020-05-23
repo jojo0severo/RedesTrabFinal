@@ -73,7 +73,8 @@ class JSONTransformer:
 
         result, message = self.manager.enter_group(user_id, subject_id, group_id)
         if result:
-            return {'result': result, 'status': 200, 'message': 'User joined the group', 'data': message}, {'group_id': group_id}
+            return {'result': result, 'status': 200, 'message': 'User joined the group', 'data': message}, {
+                'group_id': group_id}
         else:
             return {'result': result, 'status': 400, 'message': message, 'data': {}}, None
 
@@ -91,18 +92,37 @@ class JSONTransformer:
                 for group in groups:
                     json_groups.append({'id': group.id, 'groupName': group.name})
 
-            return {'result': True, 'status': 200, 'message': 'User left the group', 'data': json_groups}, {'group_id': message[1]}
+            return {'result': True, 'status': 200, 'message': 'User left the group', 'data': json_groups}, {
+                'group_id': message[1]}
 
         else:
             return {'result': False, 'status': 400, 'message': message, 'data': []}, None
 
     def start_match(self, json):
-        pass
+        user_id = json['user_id']
+
+        result, message = self.manager.start_match(user_id)
+        if result:
+            if isinstance(message, str):
+                return {'result': False, 'status': 200, 'message': message, 'data': []}, None
+
+            group_id = self.manager.users[user_id].group_id
+            json_questions = []
+            for question in message:
+                json_questions.append({
+                    'questionTitle': question.title,
+                    'alternatives': question.alternatives,
+                    'correctAlternative': question.correct_alternative})
+
+            return {'result': True, 'status': 200, 'message': 'Match recovered', 'data': json_questions}, {
+                'group_id': group_id}
+
+        return {'result': False, 'status': 500, 'message': message, 'data': []}, None
 
     def end_match(self, json):
         user_id = json['user_id']
 
-        result, message = self.manager.user_finished(user_id)
+        result, message = self.manager.end_match(user_id)
         if result:
             status = 200
         else:
@@ -141,8 +161,15 @@ class JSONTransformer:
             addresses = [self.manager.users[user_id].receive_address for user_id in users_ids]
 
         elif event_name == 'start_match':
-            addresses = None
-            resp = None
+            data = [{
+                        'questionTitle': question.title,
+                        'alternatives': question.alternatives,
+                        'correctAlternative': question.correct_alternative} for question in self.manager.get_questions(json_data)]
+
+            resp = {'result': True, 'status': 205, 'message': 'updateStartMatch', 'data': data}
+
+            users_ids = [obj['id'] for obj in self.get_users(json_data)['data']]
+            addresses = [self.manager.users[user_id].receive_address for user_id in users_ids]
 
         elif event_name == 'end_match':
             addresses = None
