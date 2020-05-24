@@ -33,7 +33,7 @@ class Group:
         try:
             self.losers.remove(user_id)
         except ValueError:
-            pass
+            self.winner = None
 
         return True
 
