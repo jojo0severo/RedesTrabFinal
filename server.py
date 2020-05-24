@@ -4,6 +4,10 @@ from controller.json_transformer import JSONTransformer
 
 
 class SocketServer:
+    """
+    Classe que recebe todas as mensagens dos clientes e garante que a comunicação seja feita adequadamente.
+    """
+
     def __init__(self, host='127.0.0.1', port=65000):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.settimeout(1)

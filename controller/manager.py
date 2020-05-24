@@ -5,11 +5,16 @@ from model.group import Group
 
 
 class Manager:
+    """
+    Classe que armazena todos os usuários, todos os assuntos e todos os grupos que serão criados, todos os objetos
+    identificados pelo ID único. Além do armazenamento dos dados, também faz todo o gerenciamento dos eventos recebidos
+    pelos clientes.
+    """
+
     def __init__(self):
         self.users = {}
         self.subjects = {}
         self.groups = {}
-        self.quizzes = {}
 
     def add_user(self, name, address):
         _id = Generator()

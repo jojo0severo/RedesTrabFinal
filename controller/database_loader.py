@@ -8,6 +8,11 @@ from model.question import Question
 
 
 class Loader:
+    """
+    Classe que carrega as informações do banco de dados para a memória da aplicação, como os assuntos, as perguntas,
+    as alternativas certas e erradas.
+    """
+
     @property
     def manager(self):
         manager = Manager()

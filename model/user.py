@@ -1,6 +1,13 @@
 
 
 class User:
+    """
+    Classe que armazena as informações do usuário.
+    Como: id, endereço, endereço de resposta (um é para respostas das requisições e outro para atualizações),
+    informação se ele é o criador do grupo, nome, pontuação, se está jogando, id do assunto escolhido e id do grupo
+    escolhido.
+    """
+
     def __init__(self, _id, address, name):
         self.id = _id
         self.address = address

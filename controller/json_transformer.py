@@ -2,6 +2,12 @@ from controller.database_loader import Loader
 
 
 class JSONTransformer:
+    """
+    Classe que faz todas as traduções para dentro e para fora do servidor, seja pegando as informações enviadas em
+    formato JSON para o servidor e passando para o manager ou recebendo as resposta do processamento do manager e
+    traduzindo para JSON para ser enviado como respota ao cliente.
+    """
+
     def __init__(self):
         self.manager = Loader().manager
 

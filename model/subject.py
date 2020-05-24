@@ -1,6 +1,10 @@
 
 
 class Subject:
+    """
+    Essa classe armazena as informações referentes ao assunto como o id, nome, quiz dele e ids dos grupos.
+    """
+
     def __init__(self, _id, name, quiz):
         self.id = _id
         self.name = name

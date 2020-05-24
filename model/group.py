@@ -1,6 +1,11 @@
 
 
 class Group:
+    """
+    Classe que guarda as informasções de um grupo.
+    Como: id do grupo, nome do grupo, todos os id's dos usuários que estão no grupo, usuario vencedor e perdedores.
+    """
+
     def __init__(self, _id, name):
         self.id = _id
         self.name = name
