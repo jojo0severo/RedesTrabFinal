@@ -24,23 +24,23 @@ class ClientSender:
             if msg:
                 self.check_ok()
                 return msg
+
             return self.send(message)
 
         except:
             return self.send(message)
 
-
     def check_ok(self):
-
         try:
             self.client_socket.sendto('ok'.encode('utf-8'), self.server_address)
-
             msg = self.client_socket.recv(self.buffer_size).decode('utf-8')
 
             if msg.lower() == 'ok':
                 return
+
             else:
                 self.check_ok()
+
         except:
             self.check_ok()
 
