@@ -18,24 +18,25 @@ class ClientSender:
             if msg:
                 self.check_ok()
                 return msg
+            return self.send(message)
 
-        except timeout:
-            pass
+        except:
+            return self.send(message)
 
-        self.send(message)
 
     def check_ok(self):
-        self.client_socket.sendto('ok'.encode('utf-8'), self.server_address)
 
         try:
+            self.client_socket.sendto('ok'.encode('utf-8'), self.server_address)
+
             msg = self.client_socket.recv(self.buffer_size).decode('utf-8')
-        except timeout:
-            return
 
-        if msg.lower() == 'ok':
-            return
-
-        self.check_ok()
+            if msg.lower() == 'ok':
+                return
+            else:
+                self.check_ok()
+        except:
+            self.check_ok()
 
 
 class ClientReceiver:
@@ -63,19 +64,20 @@ class ClientReceiver:
 
                 self.lock.release()
 
-            except timeout:
+            except:
                 pass
 
     def check_ok(self, address):
-        self.client_socket.sendto('ok'.encode('utf-8'), address)
 
         try:
+            self.client_socket.sendto('ok'.encode('utf-8'), address)
+
             msg, addr = self.client_socket.recvfrom(4096)
-        except timeout:
+
+            msg = msg.decode('utf-8')
+            if addr == address and msg.lower() == 'ok':
+                return
+
+        except:
             return
 
-        msg = msg.decode('utf-8')
-        if addr == address and msg.lower() == 'ok':
-            return
-
-        self.check_ok(address)
