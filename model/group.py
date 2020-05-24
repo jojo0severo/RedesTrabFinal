@@ -26,10 +26,16 @@ class Group:
     def remove_user(self, user_id):
         try:
             self.user_ids.remove(user_id)
-            return True
 
         except ValueError:
-            return False
+            pass
+
+        try:
+            self.losers.remove(user_id)
+        except ValueError:
+            pass
+
+        return True
 
     def empty(self):
         return len(self.user_ids) == 0
