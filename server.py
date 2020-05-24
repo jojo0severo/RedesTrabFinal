@@ -39,6 +39,9 @@ class SocketServer:
 
     def handle(self, data, address):
         try:
+            if data.lower() == 'ok':
+                self.socket.sendto('ok'.encode('utf-8'), address)
+                return
             json_received = json.loads(data)
 
             event = json_received['event']
