@@ -8,7 +8,8 @@ class ClientSender:
         self.server_address = (server_host, server_port)
         self.client_socket = socket(AF_INET, SOCK_DGRAM)
         self.client_socket.bind((host, port))
-        self.client_socket.settimeout(5)
+        self.client_socket.settimeout(1)
+        print(f'Sender on: http://{host}:{port}')
 
     def send(self, message):
         try:
@@ -45,7 +46,8 @@ class ClientReceiver:
         self.buffer_size = buffer_size
         self.client_socket = socket(AF_INET, SOCK_DGRAM)
         self.client_socket.bind((host, port))
-        self.client_socket.settimeout(5)
+        self.client_socket.settimeout(1)
+        print(f'Listener on: http://{host}:{port}')
 
         Thread(target=self.listen).start()
 
