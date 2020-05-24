@@ -17,7 +17,7 @@ class Quiz:
         return next_question
 
     def add_answer(self, answer):
-        self.answers.append(self.questions[self.counter-1].correct_alternative == answer)
+        self.answers.append(str(self.questions[self.counter-1].correct_alternative) == answer)
 
     def points(self):
         return sum([1 if ans else 0 for ans in self.answers])

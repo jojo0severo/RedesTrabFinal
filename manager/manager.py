@@ -157,6 +157,9 @@ class Manager:
         resp = self._send('endMatch', [self.user.id, self.quiz.points()])
         if resp['result']:
             self.update_end_game(resp['data'])
+            self.quiz = None
+            self.ready = False
+            self.user.started = False
             return True
 
         return False
