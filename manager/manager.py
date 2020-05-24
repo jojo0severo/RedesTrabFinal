@@ -10,6 +10,11 @@ from model.question import Question
 
 
 class Manager:
+    """
+    Classe que processa todas as chamadas javascript e atualizações do servidor modificando as estruturas internas. Ela
+    também possui o registro de todas estruturas internas utilizadas pelo cliente.
+    """
+
     def __init__(self, host, port, server_host, server_port, buffer_size):
         self.quiz = None
         self.user = None

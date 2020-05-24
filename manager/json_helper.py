@@ -1,5 +1,14 @@
 import json
 
+"""
+Este script possui todos os métodos de conversão para o formato JSON necessários para a comunicação com o servidor e
+interpretação das atualizações recebidas. 
+
+Os métodos que utilizam a nomenclatura "decorate" são utilizados para traduzir as mensagens processadas pelo manager e
+enviar para o script "server.py", enquanto os outros métodos são utilizados para formatar as mensagens que serão
+enviadas para o servidor.
+"""
+
 
 def transform(function):
     def transform(*args, **kwargs):

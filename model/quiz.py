@@ -1,6 +1,10 @@
 
 
 class Quiz:
+    """
+    Objeto que armazena as questões referentes ao assunto escolhido e as respostas do usuário.
+    """
+
     def __init__(self, name, questions):
         self.name = name
         self.questions = questions

@@ -2,6 +2,18 @@ import sys
 from flask import Flask, request, render_template, jsonify, url_for
 from manager.manager import Manager
 
+
+"""
+Script do servidor do cliente que serve as páginas web e interpreta as requisições feitas pelo javascript no browser.
+O script recebe valores por linha de comando sendo eles, respectivamente:
+    Porta utilizada pela biblioteca Flask para servir o cliente
+    Endereço utilizado pela biblioteca Flask para servir o cliente e pelo socket do cliente
+    Porta utilizada pelo socket do cliente
+    Endereco do servidor
+    Porta do servidor
+    Tamanho do buffer do socket
+"""
+
 args = sys.argv[1:]
 flask_port, host, port, server_host, server_port, buffer_size = 5000, '127.0.0.1', 60001, '127.0.0.1', 65000, 4096
 try:

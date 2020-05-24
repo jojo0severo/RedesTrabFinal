@@ -3,6 +3,12 @@ from socket import AF_INET, socket, SOCK_DGRAM, timeout
 
 
 class ClientSender:
+    """
+    Classe que faz a comunicação do cliente com o servidor através de mensagens UDP formatadas e transformadas em Strings.
+    As mensagens são enviadas a partir do método "send" que recebe uma mensagem já formatada e trata toda a comunicação
+    com o servidor garantindo o recebimento.
+    """
+
     def __init__(self, host, port, server_host, server_port, buffer_size):
         self.buffer_size = buffer_size
         self.server_address = (server_host, server_port)
@@ -39,6 +45,10 @@ class ClientSender:
 
 
 class ClientReceiver:
+    """
+    Classe que recebe mensagens do servidor para fazer atualizações internas devido a mensagem de outros clientes.
+    """
+
     def __init__(self, manager, lock, host, port, buffer_size):
         self.keep_listening = True
         self.manager = manager
