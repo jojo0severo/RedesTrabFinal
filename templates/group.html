@@ -10,12 +10,11 @@
                 $.ajax({
                     type: "POST",
                     url: 'http://127.0.0.1:{{flask_port}}/start',
-                    dataType: "json",
-                    contentType: "application/json",
-                    data: JSON.stringify('estamos prontos, capitão'),
                     success: function (resp) {
                         if (resp === 'wait'){
-                            setTimeout(start(), 3000);
+                            sleep(2000).then(() => {
+                                start();
+                            });
                         }
                         else{
                             window.location = resp;
@@ -23,6 +22,7 @@
                     }
                 });
             }
+
             function leave() {
                 $.ajax({
                     type: "POST",
@@ -36,6 +36,10 @@
                 });
             }
 
+            function sleep (time) {
+                return new Promise((resolve) => setTimeout(resolve, time));
+            }
+
             function loop(){
                 setTimeout(function () {
                     if(keepLooping) {
@@ -46,7 +50,7 @@
                         document.getElementById("spinner").hidden = false;
                     }
 
-                }, 5000);
+                }, 2500);
             }
 
             loop();

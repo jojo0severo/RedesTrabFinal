@@ -13,6 +13,9 @@ class Manager:
     def __init__(self, host, port, server_host, server_port, buffer_size):
         self.quiz = None
         self.user = None
+        self.winner = None
+        self.ready = False
+        self.losers = []
         self.subjects = []
         self.groups = []
 
@@ -23,7 +26,7 @@ class Manager:
                                    server_port=server_port,
                                    buffer_size=buffer_size)
 
-        ClientReceiver(manager=self, lock=self.lock, host=host, port=port+1, buffer_size=buffer_size)
+        ClientReceiver(manager=self, lock=self.lock, host=host, port=port + 1, buffer_size=buffer_size)
 
     @decorate_user
     def get_user(self):
@@ -115,13 +118,51 @@ class Manager:
         else:
             self.groups.append(Group(0, resp['message']))
 
-    @decorate_quiz
     def start_match(self):
         if self.user.started:
-            return self.quiz
+            if self.ready:
+                return True
+            return False
 
         self.user.started = True
-        return self._send('startMatch', self.user.id)
+
+        resp = self._send('startMatch', self.user.id)
+        if resp['result']:
+            self.ready = True
+
+            questions = []
+            for question in resp['data']:
+                questions.append(
+                    Question(question['questionTitle'], question['alternatives'], question['correctAlternative']))
+
+            self.quiz = Quiz(self.user.subject.name, questions)
+
+            return True
+
+        return False
+
+    @decorate_question
+    def get_question(self):
+        next_question = self.quiz.next_question()
+
+        if next_question is False:
+            return None
+
+        return next_question
+
+    def get_results(self):
+        return self.winner is not None
+
+    def end_match(self):
+        resp = self._send('endMatch', [self.user.id, self.quiz.points()])
+        if resp['result']:
+            self.update_end_game(resp['data'])
+            return True
+
+        return False
+
+    def add_previous_answer(self, answer):
+        self.quiz.add_answer(answer)
 
     @transform
     def _send(self, event, data=None):
@@ -146,6 +187,9 @@ class Manager:
         elif event == 'startMatch':
             data = start_match_request(data)
 
+        elif event == 'endMatch':
+            data = end_match_request(*data)
+
         data = data.encode('utf-8')
 
         self.lock.acquire()
@@ -162,11 +206,12 @@ class Manager:
         elif data['message'] == 'updateUsers':
             self.update_users(data['data'])
 
-        elif data['message'] == 'startGame':
+        elif data['message'] == 'startMatch':
+            self.ready = True
             self.update_quiz(data['data'])
 
-        elif data['message'] == 'endGame':
-            pass
+        elif data['message'] == 'endMatch':
+            self.update_end_game(data['data'])
 
     def update_groups(self, groups):
         for group in groups:
@@ -180,6 +225,34 @@ class Manager:
     def update_quiz(self, questions):
         obj_questions = []
         for q in questions:
-            obj_questions .append(Question(q['questionTitle'], q['alternatives'], q['correctAlternative']))
+            obj_questions.append(Question(q['questionTitle'], q['alternatives'], q['correctAlternative']))
 
         self.quiz = Quiz(self.user.subject.name, obj_questions)
+
+    def update_end_game(self, data):
+        self.winner = data['winner']
+        self.losers = data['losers']
+
+        if self.user.id == data['winner'][0]:
+            self.user.points = data['winner'][2]
+        else:
+            for loser in self.losers:
+                if loser[0] == self.user.id:
+                    self.user.points = loser[2]
+                    break
+
+    def get_message(self):
+        if self.winner[0] == self.user.id:
+            message = f'Parabens, {self.user.name}, voce ganhou com {self.user.points} pontos!'
+
+        else:
+            difference = self.winner[2] - self.user.points
+            if difference == 0:
+                message = f'Voce empatou com o jogador {self.winner[1]} com {self.user.points} pontos.'
+            else:
+                message = f'Sinto muito, {self.user.name}, voce perdeu para {self.winner[1]} por {difference} ' \
+                    f'ponto{"s" if difference > 1 else ""}.'
+
+        self.user.points = 0
+
+        return message

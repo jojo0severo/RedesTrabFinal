@@ -27,9 +27,15 @@
             <h1>{{ question_title }}</h1>
             <br>
             <br>
-            {% for id, alternative in alternatives %}
-                <button onclick="nextQuestion('{{ id }}')">{{ alternative }}</button>
-            {% endfor %}
+            <table>
+                {% for id, alternative in alternatives %}
+                <tr>
+                    <td>
+                        <button onclick="nextQuestion('{{ id }}')">{{ alternative }}</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
         </div>
     </body>
 </html>

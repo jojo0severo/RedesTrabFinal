@@ -38,6 +38,10 @@ def start_match_request(user_id):
     return json.dumps({"event": "startMatch", "json": {"user_id": user_id}})
 
 
+def end_match_request(user_id, points):
+    return json.dumps({"event": "endMatch", "json": {"user_id": user_id, 'user_points': points}})
+
+
 def decorate_user(function):
     def format_user(*args, **kwargs):
         resp = function(*args, **kwargs)
@@ -96,19 +100,15 @@ def decorate_group(function):
     return format_group
 
 
-def decorate_quiz(function):
-    def format_quiz(*args, **kwargs):
+def decorate_question(function):
+    def format_question(*args, **kwargs):
         resp = function(*args, **kwargs)
 
-        if isinstance(resp, dict):
-            if not resp['result']:
-                return False
+        if resp is None:
+            return None
 
-            return True
+        alternatives = [(i, resp.alternatives[i]) for i in range(len(resp.alternatives))]
 
-        elif resp is None:
-            return False
+        return {'title': resp.title, 'correctAlternative': resp.correct_alternative, 'alternatives': alternatives}
 
-        return True
-
-    return format_quiz
+    return format_question

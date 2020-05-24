@@ -2,9 +2,8 @@ import sys
 from flask import Flask, request, render_template, jsonify, url_for
 from manager.manager import Manager
 
-
 args = sys.argv[1:]
-flask_port, host, port, server_host, server_port, buffer_size = 5000, '127.0.0.1', 9001, '127.0.0.1', 65000, 4096
+flask_port, host, port, server_host, server_port, buffer_size = 5000, '127.0.0.1', 60001, '127.0.0.1', 65000, 4096
 try:
     flask_port = int(args[0])
     host = args[1]
@@ -72,7 +71,7 @@ def group():
                            people=recovered_group['users'])
 
 
-@app.route('/new_group', methods=['GET', 'POST'])
+@app.route('/newGroup', methods=['GET', 'POST'])
 def new_group():
     if request.method == 'POST':
         data = request.get_json()
@@ -99,9 +98,37 @@ def start():
     return jsonify('wait')
 
 
-@app.route('/questions', methods=['GET'])
+@app.route('/questions', methods=['GET', 'POST'])
 def questions():
-    return render_template('questions.html', flask_port=flask_port)
+    if request.method == 'POST':
+        data = request.get_json()
+        manager.add_previous_answer(data)
+
+        if manager.quiz.counter == 4:
+            manager.end_match()
+            return jsonify(url_for('end_match'))
+
+        return jsonify(url_for('questions'))
+
+    question = manager.get_question()
+
+    if question is not None:
+        return render_template('questions.html',
+                               flask_port=flask_port,
+                               question_title=question['title'],
+                               alternatives=question['alternatives'])
+    else:
+        return render_template('questions.html',
+                               flask_port=flask_port)
+
+
+@app.route('/endGame', methods=['GET', 'POST'])
+def end_match():
+    resp = manager.get_results()
+    if resp:
+        return render_template('endgame.html', flask_port=flask_port, message=manager.get_message(), hide=True)
+
+    return render_template('endgame.html', flask_port=flask_port, message='Waiting', hide=False)
 
 
 if __name__ == '__main__':

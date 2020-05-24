@@ -5,6 +5,7 @@ class User:
         self.id = _id
         self.name = name
 
+        self.points = 0
         self.group = None
         self.subject = None
         self.started = False
