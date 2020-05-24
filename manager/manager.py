@@ -124,7 +124,10 @@ class Manager:
                 return True
             return False
 
+        self.winner = None
+        self.losers.clear()
         self.user.started = True
+        self.user.points = 0
 
         resp = self._send('startMatch', self.user.id)
         if resp['result']:
@@ -157,9 +160,6 @@ class Manager:
         resp = self._send('endMatch', [self.user.id, self.quiz.points()])
         if resp['result']:
             self.update_end_game(resp['data'])
-            self.quiz = None
-            self.ready = False
-            self.user.started = False
             return True
 
         return False
@@ -233,6 +233,9 @@ class Manager:
         self.quiz = Quiz(self.user.subject.name, obj_questions)
 
     def update_end_game(self, data):
+        self.quiz = None
+        self.ready = False
+        self.user.started = False
         self.winner = data['winner']
         self.losers = data['losers']
 
@@ -246,16 +249,20 @@ class Manager:
 
     def get_message(self):
         if self.winner[0] == self.user.id:
+            for loser_id, loser_name, loser_points in self.losers:
+                if loser_points == self.user.points:
+                    return f'Voce empatou com o jogador {loser_name} com {self.user.points}' \
+                        f' ponto{"s" if self.user.points > 1 else ""}.'
+
             message = f'Parabens, {self.user.name}, voce ganhou com {self.user.points} pontos!'
 
         else:
             difference = self.winner[2] - self.user.points
             if difference == 0:
-                message = f'Voce empatou com o jogador {self.winner[1]} com {self.user.points} pontos.'
+                message = f'Voce empatou com o jogador {self.winner[1]} com {self.user.points}' \
+                    f' ponto{"s" if self.user.points > 1 else ""}.'
             else:
                 message = f'Sinto muito, {self.user.name}, voce perdeu para {self.winner[1]} por {difference} ' \
                     f'ponto{"s" if difference > 1 else ""}.'
-
-        self.user.points = 0
 
         return message
