@@ -23,7 +23,7 @@ class Loader:
 
         data = cursor.fetchall()
 
-        for k in range(0, len(data) - 12, 12):
+        for k in range(0, len(data), 12):
             questions = []
             for i in range(k, k + 12, 3):
                 _, subject_name, question, correct_answer = data[i][:-1]
@@ -42,3 +42,15 @@ class Loader:
             manager.subjects[subject_id] = Subject(subject_id, data[k][1], q)
 
         return manager
+
+
+if __name__ == '__main__':
+    conn = sqlite3.connect('../data/database.db')
+    cursor = conn.cursor()
+
+    cursor.executescript(open('../data/tables.sql', 'r').read())
+
+    cursor.executescript(open('../data/insert_subjects.sql', 'r').read())
+    cursor.executescript(open('../data/insert_questions.sql', 'r').read())
+
+    conn.commit()

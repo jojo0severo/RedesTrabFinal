@@ -121,14 +121,16 @@ class JSONTransformer:
 
     def end_match(self, json):
         user_id = json['user_id']
+        points = json['user_points']
 
-        result, message = self.manager.end_match(user_id)
+        result, message = self.manager.end_match(user_id, points)
         if result:
-            status = 200
-        else:
-            status = 400
+            group_id = message['group_id']
+            message = {'winner': message['winner'], 'losers': message['losers']}
+            return {'result': True, 'status': 200, 'message': 'User finished', 'data': message}, {'group_id': group_id}
 
-        return {'result': result, 'status': status, 'message': message, 'data': {}}
+        else:
+            return {'result': False, 'status': 400, 'message': message, 'data': {}}, None
 
     def unrecognized(self, event):
         return {'result': False, 'status': 400, 'message': 'Unrecognized event', 'data': {'received': str(event)}}
@@ -162,18 +164,32 @@ class JSONTransformer:
 
         elif event_name == 'start_match':
             data = [{
-                        'questionTitle': question.title,
-                        'alternatives': question.alternatives,
-                        'correctAlternative': question.correct_alternative} for question in self.manager.get_questions(json_data)]
+                'questionTitle': question.title,
+                'alternatives': question.alternatives,
+                'correctAlternative': question.correct_alternative} for question in
+                self.manager.get_questions(json_data)]
 
-            resp = {'result': True, 'status': 205, 'message': 'updateStartMatch', 'data': data}
+            resp = {'result': True, 'status': 205, 'message': 'startMatch', 'data': data}
 
             users_ids = [obj['id'] for obj in self.get_users(json_data)['data']]
             addresses = [self.manager.users[user_id].receive_address for user_id in users_ids]
 
         elif event_name == 'end_match':
-            addresses = None
-            resp = None
+            group = self.manager.groups[json_data['group_id']]
+            winner = self.manager.users[group.winner[0]].name
+
+            resp = {
+                'result': True,
+                'status': 205,
+                'message': 'endMatch',
+                'data': {
+                    'winner': [group.winner[0], winner, group.winner[1]],
+                    'losers': [[loser[0], self.manager.users[loser[0]].name, loser[1]] for loser in group.losers]
+                }
+            }
+
+            users_ids = [obj['id'] for obj in self.get_users(json_data)['data']]
+            addresses = [self.manager.users[user_id].receive_address for user_id in users_ids]
 
         else:
             addresses = None

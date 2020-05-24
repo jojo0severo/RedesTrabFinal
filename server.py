@@ -192,9 +192,26 @@ class SocketServer:
                         break
 
     def end_match(self, address, json_data):
-        # str_resp = json.dumps(response).encode('utf-8')
-        # self.send(str_resp, address)
-        pass
+        response, group_id = self.transformer.end_match(json_data)
+        str_resp = json.dumps(response).encode('utf-8')
+        try:
+            self.send(str_resp, address)
+        except:
+            pass
+
+        if response['result']:
+            update_response, addresses = self.transformer.get_update_response('end_match', address, group_id)
+            str_update_resp = json.dumps(update_response).encode('utf-8')
+            last_addr = None
+            try:
+                for addr in addresses:
+                    last_addr = addr
+                    self.send(str_update_resp, addr)
+            except:
+                for user in self.transformer.manager.users.values():
+                    if user.address == last_addr:
+                        self.leave_group(last_addr, {'user_id': user.id})
+                        break
 
     def unrecognized(self, address, event):
         resp = self.transformer.unrecognized(event)

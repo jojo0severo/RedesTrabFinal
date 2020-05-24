@@ -124,7 +124,7 @@ class Manager:
 
         return False, 'User was already playing'
 
-    def end_match(self, user_id):
+    def end_match(self, user_id, points):
         if user_id not in self.users:
             return False, 'User not registered'
 
@@ -133,8 +133,17 @@ class Manager:
             return False, 'User is not playing'
 
         user.playing = False
+        group = self.groups[user.group_id]
+        group.add_points(user_id, points)
+        if self.all_finished(user.group_id):
+            winner = group.winner
+            winner = winner[0], self.users[winner[0]].name, winner[1]
 
-        return True, 'User finished'
+            losers = [[loser[0], self.users[loser[0]].name, loser[1]] for loser in group.losers]
+
+            return True, {'winner': winner, 'losers': losers, 'group_id': user.group_id}
+
+        return False, 'Still waiting for players'
 
     def get_questions(self, group_id):
         group_id = group_id['group_id']
