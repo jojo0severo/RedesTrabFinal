@@ -6,7 +6,7 @@ from controller.json_transformer import JSONTransformer
 class SocketServer:
     def __init__(self, host='127.0.0.1', port=65000):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.settimeout(5)
+        self.socket.settimeout(1)
         self.socket.bind((host, port))
 
         self.transformer = JSONTransformer()
