@@ -32,7 +32,7 @@ class Loader:
                     alternatives.append(data[j][-1])
 
                 random.shuffle(alternatives)
-                right_post = random.randint(0, 4)
+                right_post = random.randint(0, 3)
                 alternatives.insert(right_post, correct_answer)
 
                 questions.append(Question(question, alternatives, right_post))
@@ -44,13 +44,13 @@ class Loader:
         return manager
 
 
-if __name__ == '__main__':
-    conn = sqlite3.connect('../data/database.db')
-    cursor = conn.cursor()
-
-    cursor.executescript(open('../data/tables.sql', 'r').read())
-
-    cursor.executescript(open('../data/insert_subjects.sql', 'r').read())
-    cursor.executescript(open('../data/insert_questions.sql', 'r').read())
-
-    conn.commit()
+# if __name__ == '__main__':
+#     conn = sqlite3.connect('../data/database.db')
+#     cursor = conn.cursor()
+#
+#     cursor.executescript(open('../data/tables.sql', 'r').read())
+#
+#     cursor.executescript(open('../data/insert_subjects.sql', 'r').read())
+#     cursor.executescript(open('../data/insert_questions.sql', 'r').read())
+#
+#     conn.commit()
